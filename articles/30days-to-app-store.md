@@ -7,24 +7,6 @@ published: true
 published_at: 2026-08-11 09:00
 ---
 
-<!--
-  Publicado el 2026-08-11. Cualquier cambio a partir de aquí edita un artículo
-  que ya está en la calle: Zenn muestra la fecha de actualización.
-
-  Las imágenes viven en /images de este mismo repo y se referencian con rutas
-  relativas, que es la vía nativa de Zenn para repos conectados. No pasan por el
-  uploader: así viajan versionadas con el artículo y no dependen del nombre de
-  la rama.
-
-  Plan de la serie: https://app.notion.com/p/3b8ea0f87143817fafabf4122c0e1cd4
-
-  Datos verificados contra el repo y la BD de producción:
-  - primer commit: 2026-06-30 20:59 (096e229, scaffold Expo SDK 54)
-  - App Store: 2026-07-29 · Google Play: 2026-08-07
-  - usuarios al cerrar el día 1: 55 (37 eran testers previos, 18 nuevos ese día)
-  - el aviso de los 12 testers × 14 días: 2026-07-13, a 16 días del lanzamiento
--->
-
 ## はじめに
 
 6月30日の夜に `create-expo-app` を叩いて、7月29日に「推しスキ」がApp Storeに並びました。ちょうど30日です。
@@ -224,7 +206,4 @@ Google Calendar APIを使うには、Googleの審査が要ります。前の会�
 アプリはこちらです。
 
 https://oshisuki.com
-
-<!-- Cuando se publique el artículo #2, volver aquí y sustituir la frase de
-     「次の記事に書きます」por el enlace real. Es una línea y un push. -->
 
