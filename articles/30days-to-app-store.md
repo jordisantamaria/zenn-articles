@@ -3,12 +3,16 @@ title: "推し活アプリを30日で作った。最大の誤算はAppleでは�
 emoji: "🚀"
 type: "tech"
 topics: ["reactnative", "expo", "個人開発", "googleplay", "appstore"]
-published: true
-published_at: 2026-08-11 09:00
+published: false
 ---
 
 <!--
-  BORRADOR COMPLETO — sin revisar por Jordi. Programado para el 11/8 09:00 JST.
+  BORRADOR COMPLETO — sin revisar por Jordi.
+
+  Para publicar: subir las 7 imágenes de images/ al uploader de Zenn, sustituir
+  los marcadores IMG_*, y entonces poner
+      published: true
+      published_at: <fecha> 09:00
   Plan y pendientes: https://app.notion.com/p/3b8ea0f87143817fafabf4122c0e1cd4
 
   Datos verificados contra el repo y la BD de producción:
