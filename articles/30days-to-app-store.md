@@ -172,8 +172,12 @@ Google Calendar APIを使うには、Googleの審査が要ります。前の会�
 
 いま私がやりたいのは、残っている山ほどのUXの問題を直していく間、ユーザーに付き合ってもらうことです。そのために、数字も失敗もそのまま出していきます。
 
-<!-- TODO(jordi): decidir el cierre. Opciones:
-     (a) enlace a la app
-     (b) enlace al artículo #2 (los 70 usuarios) cuando exista
-     (c) las dos
-     Y añadir en la bio el enlace al artículo de note. -->
+リリースしてからの話——10日で70人にどう届いたのか、そして継続率の実際の数字——は次の記事に書きます。
+
+アプリはこちらです。
+
+https://oshisuki.com
+
+<!-- Cuando se publique el artículo #2, volver aquí y sustituir la frase de
+     「次の記事に書きます」por el enlace real. Es una línea y un push. -->
+
