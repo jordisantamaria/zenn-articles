@@ -3,7 +3,8 @@ title: "推し活アプリを30日で作った。最大の誤算はAppleでは�
 emoji: "🚀"
 type: "tech"
 topics: ["reactnative", "expo", "個人開発", "googleplay", "appstore"]
-published: false
+published: true
+published_at: 2026-08-11 09:00
 ---
 
 <!--
