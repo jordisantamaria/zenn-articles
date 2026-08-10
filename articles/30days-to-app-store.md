@@ -1,5 +1,5 @@
 ---
-title: "推し活アプリを30日で作った。最大の誤算はAppleではなくGoogle Playだった"
+title: "週40時間働きながら、推し活アプリを30日でApp Storeに出した。最大の誤算はGoogle Playだった"
 emoji: "🚀"
 type: "tech"
 topics: ["reactnative", "expo", "個人開発", "googleplay", "appstore"]
