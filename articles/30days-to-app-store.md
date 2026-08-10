@@ -3,7 +3,8 @@ title: "週40時間働きながら、推し活アプリを30日でApp Storeに�
 emoji: "🚀"
 type: "tech"
 topics: ["reactnative", "expo", "個人開発", "googleplay", "appstore"]
-published: false
+published: true
+published_at: 2026-08-11 09:00
 ---
 
 <!--
