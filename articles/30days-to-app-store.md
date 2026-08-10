@@ -9,9 +9,10 @@ published: false
 <!--
   BORRADOR COMPLETO — sin revisar por Jordi.
 
-  Las imágenes se sirven desde raw.githubusercontent.com (rama master de este
-  mismo repo). No pasan por el uploader de Zenn a propósito: así viajan
-  versionadas con el artículo.
+  Las imágenes viven en /images de este mismo repo y se referencian con rutas
+  relativas, que es la vía nativa de Zenn para repos conectados. No pasan por el
+  uploader: así viajan versionadas con el artículo y no dependen del nombre de
+  la rama.
 
   Para publicar:
       published: true
@@ -32,7 +33,7 @@ published: false
 
 6月30日の夜に `create-expo-app` を叩いて、7月29日に「推しスキ」がApp Storeに並びました。ちょうど30日です。
 
-![推しスキのホーム画面](https://raw.githubusercontent.com/jordisantamaria/zenn-articles/master/images/06-home.png)
+![推しスキのホーム画面](/images/06-home.png)
 *ホーム画面。推しが画面いっぱいに出ます*
 
 推し活アプリです。地下アイドルのライブや特典会の予定を1つのカレンダーにまとめて、忘れないようにするためのもの。スペイン人の私が、日本語で、日本の推し活のために作りました。開発もデザインもマーケティングも一人です。
@@ -79,7 +80,7 @@ published: false
 
 反応が信じられませんでした。知り合いに声をかけてくれる人、リポストしてくれる人が次々に出てきて、**その1投稿が5000インプレッションまで伸びました。**開発15日目のアプリの投稿です。数時間でテスターは集まりました。
 
-![テスター募集の投稿](https://raw.githubusercontent.com/jordisantamaria/zenn-articles/master/images/03-tester-recruit.png)
+![テスター募集の投稿](/images/03-tester-recruit.png)
 *「12人×14日間のテストが必須です」。この投稿でテスターが集まりました*
 
 ただ、集めて終わりではありませんでした。テスターのリストに入っても、Google Playの反映まで数時間かかるので「ダウンロードのリンクが押せない」という人が続出します。その1件1件に返信して案内するのも、その日の仕事でした。
@@ -109,7 +110,7 @@ published: false
 
 初日、サウナの帰りに、まずLovableで高速にプロトタイプを組んでXに上げました。反応を見るためです。**そこで学んだのは、Xの人はリプライを書かない**ということでした。数字は見てくれる、でも言葉はほとんど返ってこない。
 
-![初日にLovableで作ったプロトタイプの投稿](https://raw.githubusercontent.com/jordisantamaria/zenn-articles/master/images/01-lovable-prototype.png)
+![初日にLovableで作ったプロトタイプの投稿](/images/01-lovable-prototype.png)
 *開発初日（残り29日）。Lovableのプロトタイプを上げて反応を見た。インプレッション344、リプライ1件*
 
 そのモックから決まったのが、ホーム画面いっぱいに推しが出るガチャのキャラ画面みたいなデザインです。元ネタは大好きなゲーム『ネコぱらConnect』です。
@@ -129,7 +130,7 @@ published: false
 
 そこでロゴを作りました。AIで何十案も出して4つに絞って、Xのアンケートで投票してもらいました。いちばん票が集まった案が私の好みとも一致したので、そのまま採用です。
 
-![ロゴのアンケート](https://raw.githubusercontent.com/jordisantamaria/zenn-articles/master/images/02-logo-poll.png)
+![ロゴのアンケート](/images/02-logo-poll.png)
 *4案でアンケート。Aが60%でした*
 
 最初はWebだけに使うつもりでしたが、気に入りすぎてアプリのアイコンにもしました。
@@ -168,19 +169,19 @@ Google Calendar APIを使うには、Googleの審査が要ります。前の会�
 
 朝に誕生日の投稿、昼に「18時にリリースします」の投稿、リリースと同時に「24時間限定、推しのホーム画面を見せてくれた人の現場を全部アプリに入れます」というキャンペーン、そしてリリース告知。**リリースの投稿は7,200インプレッションまで伸びました。**
 
-![リリース告知の投稿](https://raw.githubusercontent.com/jordisantamaria/zenn-articles/master/images/07-launch-post.png)
+![リリース告知の投稿](/images/07-launch-post.png)
 *リリース告知。7,200インプレッション、リポスト21*
 
 そのあと居酒屋で祝って、その日はちょうど推しのライブがありました。会場で誕生日を盛大に祝ってもらいました。
 
 翌日、App Storeで「**推し**」と検索したら、レビュー900件超のアプリより上に自分のアプリが出ていました。あれはさすがに震えました。
 
-![App Storeで「推し」と検索した結果](https://raw.githubusercontent.com/jordisantamaria/zenn-articles/master/images/05-appstore-search.png)
+![App Storeで「推し」と検索した結果](/images/05-appstore-search.png)
 *リリース翌日。レビュー903件のアプリの上にいました*
 
 初日を終えた時点で、登録ユーザーは55人。**Androidはまだ出ていない状態での数字です。**
 
-![Android版が遅れることを告知した画像](https://raw.githubusercontent.com/jordisantamaria/zenn-articles/master/images/04-android-delayed.png)
+![Android版が遅れることを告知した画像](/images/04-android-delayed.png)
 *テスターは間に合ったのに、審査が間に合いませんでした*
 
 14日間のテストは間に合わせたのに、その先の審査が間に合いませんでした。Android版が出たのは、8月7日です。
