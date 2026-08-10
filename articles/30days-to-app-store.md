@@ -207,3 +207,7 @@ Google Calendar APIを使うには、Googleの審査が要ります。前の会�
 
 https://oshisuki.com
 
+この記事に出てくる投稿は、ぜんぶこのアカウントのものです。開発の様子はそのまま流しています。
+
+https://x.com/jordisantamar1a
+
