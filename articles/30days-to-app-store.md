@@ -45,17 +45,51 @@ Claude API         告知画像・URLの解析
 
 テンプレートは Obytes starter をそのまま使いました。ゼロから組む時間を、そのぶん機能に回すためです。
 
-## 30日でいちばん時間を食ったもの
+## 30日で何がどれだけかかったか
 
-<!-- TODO(jordi): ¿fue el parser de IA, el calendario, o el auth?
-     Rellenar con lo que realmente te comió los días. Este es el apartado que
-     más se lee de todo el artículo. -->
+記憶ではなく、gitの履歴から出した数字です。30日で277コミットでした。
+
+| 週 | コミット数 |
+| --- | --- |
+| 6/30〜 | 3 |
+| 7/7〜 | 13 |
+| 7/14〜 | 71 |
+| 7/21〜 | **190** |
+
+**最後の9日間に、全体の69%が入っています。**
+
+<!-- TODO(jordi): ¿por qué? Dos lecturas posibles y solo tú sabes cuál es la buena:
+     (a) las primeras semanas fueron de decidir qué construir, y una vez claro
+         el producto la ejecución fue rápida;
+     (b) te comiste el plazo y trabajaste como un loco la última semana.
+     Si es (b), dilo. Es lo que va a hacer que este artículo se comparta. -->
+
+コードの量で見るとこうなります。
+
+| ディレクトリ | 変更行数 |
+| --- | --- |
+| `features/events` | 8,747 |
+| `features/mypage` | 7,108 |
+| `lib/oshi` | 6,292 |
+| `features/home` | 4,561 |
+| `components/ui` | 3,442 |
+| `features/auth` | 2,733 |
+
+いちばん上が「現場（ライブ）の予定」で、これはアプリの中心なので納得です。
+
+<!-- TODO(jordi): lo interesante es el 2º. ¿Esperabas que mypage se llevara
+     7.100 líneas? Si la respuesta es «no», ese es el aprendizaje del artículo:
+     dónde se te fue el tiempo sin que lo hubieras planeado. -->
 
 ## 捨てたもの
 
 <!-- TODO(jordi): lista de lo que decidiste NO hacer para llegar al 29.
-     Ej.: sync de agenda al backend (sigue apagado), monetización,
-     Android en la v1. -->
+     Candidatos que sé que son ciertos:
+     - sync de la agenda al backend (ENABLE_EVENT_SYNC sigue apagado hoy)
+     - monetización (Stripe está cableado en código pero sin usar)
+     - Android (salió 9 días después, el 7 de agosto)
+     Confirma cuáles fueron decisión consciente y cuáles simplemente no dieron
+     tiempo — esa distinción es la parte honesta del apartado. -->
 
 ## ローカルファーストにした理由
 
