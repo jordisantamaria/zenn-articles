@@ -8,26 +8,21 @@ published_at: 2026-08-11 09:00
 ---
 
 <!--
-  BORRADOR COMPLETO — sin revisar por Jordi.
+  Publicado el 2026-08-11. Cualquier cambio a partir de aquí edita un artículo
+  que ya está en la calle: Zenn muestra la fecha de actualización.
 
   Las imágenes viven en /images de este mismo repo y se referencian con rutas
   relativas, que es la vía nativa de Zenn para repos conectados. No pasan por el
   uploader: así viajan versionadas con el artículo y no dependen del nombre de
   la rama.
 
-  Para publicar:
-      published: true
-      published_at: <fecha> 09:00
-  Plan y pendientes: https://app.notion.com/p/3b8ea0f87143817fafabf4122c0e1cd4
+  Plan de la serie: https://app.notion.com/p/3b8ea0f87143817fafabf4122c0e1cd4
 
   Datos verificados contra el repo y la BD de producción:
   - primer commit: 2026-06-30 20:59 (096e229, scaffold Expo SDK 54)
-  - App Store: 2026-07-29 (cumpleaños de Jordi)
-  - 277 commits en los 30 días; 190 de ellos en los últimos 9 (69%)
-  - features/events 8.747 líneas · features/mypage 7.108 · lib/oshi 6.292
+  - App Store: 2026-07-29 · Google Play: 2026-08-07
   - usuarios al cerrar el día 1: 55 (37 eran testers previos, 18 nuevos ese día)
-    -> Jordi recordaba 58. Uso 55 porque sale de la tabla `user`. Si tu cifra
-       viene de otro sitio (App Store Connect?), dímelo y la cambio.
+  - el aviso de los 12 testers × 14 días: 2026-07-13, a 16 días del lanzamiento
 -->
 
 ## はじめに
