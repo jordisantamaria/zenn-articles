@@ -1,6 +1,6 @@
 ---
 title: "アプリを出してから最初の課題。アーリーアダプターの声でUXを改善する"
-emoji: "💬"
+emoji: "🌱"
 type: "tech"
 topics: ["個人開発", "claudecode", "ux", "buildinpublic", "reactnative"]
 published: true
