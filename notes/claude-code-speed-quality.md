@@ -64,3 +64,20 @@ Es el que más fácil se lee como 自慢 («mira mi setup»). El antídoto está
 estructura: **cada sección empieza por el fallo y acaba en la pieza**, nunca al
 revés. Un lector que no monte nada de esto tiene que salir habiendo aprendido los
 tres modos de pisarse en git — eso es valor aunque no copie una línea.
+
+## 記事の芯（2026-08-21 に整理）
+
+GTDの「2分ルール」（2分で終わるならメモせず今やる、David Allen『Getting Things Done』）
+※Clean Codeではない。Clean Codeのほうは Boy Scout Rule（来たときより綺麗にして帰る）。
+
+- 元のルール：**速いなら**今やる。遅いものはメモ＝バックログに積む。
+- メモのコスト：1週間後にも残っている。そして再開時に文脈を思い出す時間がかかる。
+- Claude Codeで変わること：**「速いなら」という条件が消える。** 2時間かかるタスクも、
+  思いついた瞬間にセッションへ投げれば、バックログに積まずに片付く。
+  だからセッションはどんどん増やしていい。
+- ただし正直に書くべき反面：**ボトルネックは「書く時間」から「確認する時間」へ移る。**
+  8つ同時に走っても、実機で触れるのは一度に1つ。生成が速くなっても検証は速くならない。
+  → この記事の結論は「速くなった」ではなく「待ち時間がゼロになった」。
+
+キーワード：`claude code 並列`（サジェスト10件 = 今回測ったなかで最大の需要）。
+やり方 / 実行 / 起動 / エージェント / 作業 / 開発 / 実装 / 処理 / 化 — タイトルに入れる候補。
