@@ -12,8 +12,8 @@ las dos plataformas es el error típico y las dos lo castigan.
 
 ## LinkedIn — post de feed
 
-> ⚠️ El enlace va en el **primer comentario**, no en el post. LinkedIn baja el
-> alcance de los posts con link externo en el cuerpo.
+> El enlace va **en el cuerpo**, al final: el objetivo es branding, no alcance —
+> queremos la card de zenn.dev visible en el perfil, como en el post anterior.
 > Las 2 primeras líneas son lo único que se ve antes del「…もっと見る」.
 
 AIで開発を速くしても、リリース日は守れませんでした。
@@ -33,9 +33,8 @@ AIで開発を速くしても、リリース日は守れませんでした。
 
 私はこの2つを同じ顔で約束しました。外部依存のある日付を、自分の努力で守れる日付と混ぜないこと。次からは「◯日に提出します。通り次第すぐ出します」と書きます。
 
-12日間の記録を記事にまとめました。リンクはコメント欄に置いています。
+12日間の記録を、記事にまとめました。
 
-（第1コメント）
 https://zenn.dev/jordisantamaria/articles/first-steps-after-launch
 
 ---
