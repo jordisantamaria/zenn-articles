@@ -51,6 +51,54 @@ el japonés en cientos de subsets. (Dato colateral bueno: Googlebot los pedía u
 uno como si fueran páginas, y 71 acabaron en el informe de indexación. Se arregla con
 `Disallow: /_next/static/media/*.woff2$`.)
 
+## El japonés y `next/font`: sección propia, y quizá el mejor material del artículo
+
+Salió después, mirando por qué Lighthouse daba **LCP 7,5 s en móvil con un FCP de
+0,8 s** — una combinación que no cuadra.
+
+`next/font` parte una fuente japonesa en cientos de subsets por rango unicode:
+
+| Familia | `@font-face` |
+|---|---|
+| Zen Maru Gothic | **366** |
+| Noto Sans JP | **373** |
+| Archivo + Figtree | 24 |
+
+Con `preload` activado (**el default**) Next mete un `<link rel="preload">` por casi
+todos. Medido en producción: **241 preloads, 4,2 MB** — el 90% del peso de la página,
+pedido antes de pintar un píxel. Noto Sans JP ya llevaba `preload: false`; a Zen Maru
+Gothic se le había pasado.
+
+Los dos builds, Lighthouse móvil, mismo servidor:
+
+| | antes | después |
+|---|---|---|
+| Peticiones | 267 | **70** |
+| Peso | 5,82 MB | **2,31 MB** |
+| Fuentes | 242 / 4,1 MB | **45 / 591 KB** |
+| LCP (simulado) | 39,8 s | **14,2 s** |
+
+**Y el score de Lighthouse NO subió** (60 contra 62). Eso es lo interesante y lo que
+hace la sección honesta: el cuello que queda son los **544 KB de CSS** que declaran
+esos 740 `@font-face`, en la ruta crítica y bloqueando el render. Una bandera no lo
+arregla; pide subsetear la fuente a los glifos que la página usa.
+
+### El aviso que vale la sección entera
+
+**El LCP de Lighthouse no es una medición.** En el trace, el LCP real ocurre a los
+**298 ms**; los 7,5 s son la *simulación* de 4G lento, que penaliza sobre todo el
+NÚMERO de peticiones compitiendo. Y las Live Metrics de DevTools sobre una carga real
+daban **0,71 s**.
+
+Tres números para lo mismo, y los tres correctos en su contexto. Explicar eso es más
+útil para el lector que cualquier «cómo subí mi score a 100»:
+  - **campo (CrUX / Live metrics)** — lo que ven los usuarios; es lo que Google usa
+  - **laboratorio simulado (Lighthouse / PSI)** — comparable entre sitios, no real
+  - **trace** — lo que pasó de verdad en esa carga
+
+⚠️ Y la honestidad que toca: con el volumen actual **CrUX no tiene datos suficientes**,
+así que no se puede afirmar ninguna mejora de campo. Decirlo.
+
 ## El efecto secundario que no se buscaba
 
 Activar el proxy naranja movió el fin del TLS a **Tokio** (`cf-ray: …-NRT`) en vez de
