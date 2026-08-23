@@ -6,25 +6,9 @@ topics: ["vercel", "flyio", "個人開発", "nextjs", "パフォーマンス"]
 published: false
 ---
 
-<!-- ⚠️ DRAFT — Zenn IMPRIME los comentarios HTML. Borrar TODOS los bloques
-     «<!-- ES: ... -->» antes de poner published: true.
-     Datos medidos y fuentes: notes/serverless-to-server.md
-
-     TÍTULO — la versión de Jordi era 「BackendがServerlessからServerに移動したら、
-     ５倍早くなって安くなった」. Cambios aplicados y por qué:
-       ・早く → 速く（スピードは「速い」）
-       ・Backendが移動した → バックエンドを移した（自分が動かしたので他動詞）
-       ・５ → 5（Zennの本文は半角数字が読みやすい）
-     Alternativas si quieres más filo:
-       a) サーバーレスからサーバーに「戻した」ら、5倍速くなって安くなった ← 逆行感が強い
-       b) ユーザーが少ないほど、サーバーレスは高くつく ← テーゼそのもの
-     -->
-
 3週間前、Vercelから「無料枠の75%を使いました」というメールが届きました。
 
 翌朝ダッシュボードを開いたら、96%になっていました。
-
-<!-- ES: si publicas la captura del correo, recorta el nombre del team. -->
 
 推しスキというアプリは、そのときすでにApp StoreとGoogle Playに出ていて、実際のユーザーが毎日使っていました。無料枠を使い切ると、Vercelはチーム内の**全プロジェクトを停止します**。つまりログインも、共有カタログも、チェキのアップロードも止まる。
 
@@ -61,11 +45,6 @@ published: false
 月14,500リクエスト。ほぼトラフィックがない状態です。**無料枠は成功して尽きたのではなく、1リクエストが高すぎて尽きていました。**
 
 593msというのは、リクエストを処理している時間ではありません。ほとんどが**Next.js + Prisma + better-authを起動し直している時間**です。トラフィックが少なすぎてインスタンスが温まらないので、42%のリクエストが毎回ゼロから起動していました。
-
-<!-- ES: dato secundario que puedes usar o cortar según longitud —
-     ルート別の内訳で、`/_not-found` 38回 + `/robots.txt` 10回 = 全体の約20%が
-     ボットのスキャンだった。トラフィックのない個人開発では、コストの2割が
-     ボットというのは書く価値がある。 -->
 
 ## サーバーレスが正解になる条件
 
@@ -107,8 +86,6 @@ Vercel Proを選んでも**コールドスタートは消えません**。42%の
 
 日本向けのプロダクトを作っている人には、これは知っておく価値のある数字だと思います。速くしようとすると58%高くなる。
 
-<!-- ES: fuente — https://vercel.com/docs/functions/usage-and-pricing（2026-08-22 確認）-->
-
 ## サーバーは、なぜAWSでもGCPでもなくFly.ioなのか
 
 「サーバーに移す」と言うと、AWS / Azure / Google Cloudの話だと受け取られます。実際その3つには明確なメリットがありますし、**サーバーを選ばない理由がここにある人も多いと思います**——EC2やECSを一人で面倒みる未来が見えた時点で、話が終わってしまう。
@@ -116,10 +93,6 @@ Vercel Proを選んでも**コールドスタートは消えません**。42%の
 でも、**サーバーで動かすことと、大きなクラウドを運用することは別の話です。** 今は「コンテナを1つ、常時起動で置いておく」だけのサービスがいくつもあります。サーバーレスの反対側は、昔のインフラ管理ではありません。
 
 僕のケースでは、大きなクラウドは明確にオーバーキルでした。そしてオーバーキルは「高い」だけでは終わりません。**本当のコストは、管理が複雑になることのほうです。** ECS + ALB + RDS + IAM + VPCを一人で見るのと、コンテナ1つを動かすのとでは、**障害が起きたときに原因までたどり着く時間**が違います。一人でやっているなら、そこが一番効きます。
-
-<!-- ES: ここでAWS SAAを持っていることに触れてもいい。「資格を取ったからこそ、
-     必要ない構成が分かる」という一文は、この記事の信頼性をかなり上げる。
-     入れるかどうかは好みなので、判断はJordiに。 -->
 
 Fly.ioにした理由は3つです。
 
@@ -190,10 +163,6 @@ Fly.ioにした理由は3つです。
 そして経験のいいところは、AIが速くなっても目減りしないことだと思っています。むしろ、調べるのが速くなるほど、**正しい問いを持っている人の生産性だけが伸びていきます**。
 
 ## サーバーはユーザーの近くではなく、DBの近くに置く
-
-<!-- ES: ESTA es la sección que hace que el artículo valga la pena. No estaba en
-     tu narrativa, pero es lo más contraintuitivo que hicimos y es verdad:
-     el servidor NO acabó en Tokio. Si la cortas, el artículo pierde su mejor idea. -->
 
 ここが、この移行でいちばん意外だった部分です。
 
@@ -280,12 +249,6 @@ Fly.ioにした理由は3つです。
 
 ## 移行は3時間で終わった
 
-<!-- ES: ventana verificable en el git de oshisuki —
-     09:44 último commit no relacionado / 09:45 feat(infra): mover producción a Fly
-     09:51 CI + crons / 09:59 merge PR #132 / 10:42-10:58 los tres fixes de logs.
-     Las mediciones de Vercel son de esa misma mañana, antes de empezar.
-     Si tu recuerdo de las 3h difiere, este es el rastro para ajustarlo. -->
-
 ここは、この記事でいちばん伝えたいことかもしれません。
 
 **インフラの移行は、3時間で終わりました。** 調査からDNSの切り替えまで、同じ日の午前中です。
@@ -321,9 +284,6 @@ Fly.ioにした理由は3つです。
 
 急ぐ理由ができてからでは、もう軽くない。
 
-<!-- ES: matiz honesto — necesario o el argumento es deshonesto y en los
-     comentarios japoneses lo desmontan. NO borrar. -->
-
 念のため書いておくと、**これはそのまま大きなプロダクトに当てはまる話ではありません。** ユーザーが1万人いて、決済が動いていて、SLAがあるなら、3時間では終わらないし終わらせるべきでもない。
 
 持ち帰れるのは3時間という数字ではなく、**問いのほうです**。
@@ -333,9 +293,6 @@ Fly.ioにした理由は3つです。
 その2つの数字の差が、先延ばしの本当のコストです。
 
 ## 移行中に壊れたもの
-
-<!-- ES: esta sección es la que más credibilidad da. Si hay que recortar el
-     artículo, corta otra cosa. Detalle completo en las notas. -->
 
 うまくいった話だけ書くと嘘になるので、詰まったところを2つ。細かいビルドエラーの類は省きます。
 
@@ -369,10 +326,6 @@ Axiomへflushする`beforeExit`ハンドラを書いていました。このイ�
 
 **約5倍**です。そしてコストは下がりました。
 
-<!-- ES: sobre el precio de Fly — NO escribas「無料プランで十分」. Fly retiró el
-     free tier; hoy hay un allowance mensual en el plan Hobby. Lo verificable y
-     honesto es el número medido: ~$3.5/mes. Lo dejo así en el draft. -->
-
 **Vercelのために公平に書いておきます。** 593ms/リクエストは42%のコールドスタートの結果であって、トラフィックが密になればインスタンスが再利用されてこの数字は大きく下がります。**Vercelはスケールすると良くなります。** この記事の結論は「Vercelが高い」ではなく、「僕のトラフィックの形に合っていなかった」です。
 
 そして**この判断は可逆です**。トラフィックの形が変わったら、戻せばいい。
@@ -397,14 +350,5 @@ Axiomへflushする`beforeExit`ハンドラを書いていました。このイ�
 
 ---
 
-<!-- ES: enlace al segundo artículo. Ponerlo cuando landing-off-the-server esté
-     publicado; si sale antes éste, borra este bloque. -->
+なお、この移行のあとに、同じサーバーに乗っていたランディングページも外に出しています。そちらは「なぜマーケティングサイトはアプリケーションサーバーと一緒に落ちてはいけないのか」という別のテーマなので、記事を分けて書く予定です。
 
-この移行のあと、同じサーバーに乗っていたランディングページを外に出しました。そちらは「なぜマーケティングサイトはアプリケーションサーバーと一緒に落ちてはいけないか」という別のテーマなので、記事を分けています。
-
-<!-- ES: PENDIENTE DE VERIFICAR antes de publicar —
-     ・「ダウン時のメール通知」: ¿está realmente configurado el uptime monitor?
-       Si no lo montamos, hay que quitarlo o montarlo. NO publicar sin comprobar.
-     ・La cifra de 87 usuarios: mis notas decían no exponer tracción, pero es tu
-       llamada y el número refuerza el argumento. Lo he dejado porque lo pediste.
--->
