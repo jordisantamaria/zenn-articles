@@ -1,325 +1,306 @@
 ---
-title: "TODO: 月1.5万リクエストでVercelの無料枠が尽きた（仮題 — 候補は notes/serverless-to-server.md）"
+title: "バックエンドをサーバーレスからサーバーに移したら、5倍速くなって安くなった"
 emoji: "🌏"
 type: "tech"
 topics: ["vercel", "flyio", "個人開発", "nextjs", "パフォーマンス"]
 published: false
 ---
 
-<!-- ⚠️ ESQUELETO — NO PUBLICAR TAL CUAL.
-     Zenn IMPRIME los comentarios HTML: borrar este bloque y todas las líneas
-     «> ES:» antes de poner published: true.
+<!-- ⚠️ DRAFT — Zenn IMPRIME los comentarios HTML. Borrar TODOS los bloques
+     «<!-- ES: ... -->» antes de poner published: true.
      Datos medidos y fuentes: notes/serverless-to-server.md
 
-     ARTÍCULO 1 DE 2. Este es «dónde corre el servidor».
-     El otro —sacar la landing del servidor— es articles/landing-off-the-server.md.
-     Se partieron porque juntos eran dos tesis compitiendo en 6.000 caracteres.
+     TÍTULO — la versión de Jordi era 「BackendがServerlessからServerに移動したら、
+     ５倍早くなって安くなった」. Cambios aplicados y por qué:
+       ・早く → 速く（スピードは「速い」）
+       ・Backendが移動した → バックエンドを移した（自分が動かしたので他動詞）
+       ・５ → 5（Zennの本文は半角数字が読みやすい）
+     Alternativas si quieres más filo:
+       a) サーバーレスからサーバーに「戻した」ら、5倍速くなって安くなった ← 逆行感が強い
+       b) ユーザーが少ないほど、サーバーレスは高くつく ← テーゼそのもの
+     -->
 
-     TÍTULO — candidatos, todos apuntan al problema y no a la solución:
-       a) 月1.5万リクエストでVercelの無料枠が尽きた  ← el número contraintuitivo
-       b) アクセスの42%が、サーバーが起きるのを待っていた  ← el hallazgo
-       c) ユーザーが少ないほど、サーバーレスは高くつく  ← la tesis en una línea
-       d) サーバーは、ユーザーの近くではなくDBの近くに置く  ← el giro
-     (a) para el titular y (c) como primera frase funciona bien: el número engancha,
-     la tesis retiene. Evitar «VercelからFlyへ移行した話»: describe el trámite, no el
-     problema, y el lector de Zenn busca el problema. -->
+3週間前、Vercelから「無料枠の75%を使いました」というメールが届きました。
 
-> ES: **Por qué este artículo no es «Vercel vs Fly» más.**
-> De esos hay cientos y casi todos comparan features. Éste tiene cuatro cosas que
-> no están escritas en japonés:
->
-> 1. **El free tier se agotó con 14.500 requests al mes.** Casi sin tráfico. Rompe
->    la intuición: no se agota por éxito, se agota por arquitectura mal encajada.
-> 2. **El ángulo japonés**: si tu producto es para Japón, el default de Vercel
->    (`iad1`, Washington) cuesta dinero *y* velocidad. Y el remedio obvio —mover a
->    Tokio— es la región **más cara** de Vercel: +58% de Active CPU.
-> 3. **El servidor acabó en Singapur, no en Tokio.** Es lo mejor del artículo y va
->    explicado abajo.
-> 4. **La contraintuición del pooler**: serverless escala *peor* contra Postgres
->    que un servidor persistente, no mejor.
->
-> La tesis honesta: **se compraron las desventajas del serverless sin poder usar su
-> ventaja**, porque la elasticidad está detrás del paywall. No «Vercel es malo».
+翌朝ダッシュボードを開いたら、96%になっていました。
 
-## はじめに
+<!-- ES: si publicas la captura del correo, recorta el nombre del team. -->
 
-> ES: Entrar por la escena, no por la conclusión. La escena es literal y buena: un
-> correo de Vercel un viernes por la noche diciendo «has usado el 75% de tu free
-> tier», y al abrir el dashboard a la mañana siguiente el número ya era 96%. Con
-> una app publicada en las tiendas y usuarias reales usándola ese mismo sábado.
->
-> La pregunta del artículo en una línea:
-> 「ユーザーがほとんどいないのに、なぜ無料枠を使い切ったのか？」
+推しスキというアプリは、そのときすでにApp StoreとGoogle Playに出ていて、実際のユーザーが毎日使っていました。無料枠を使い切ると、Vercelはチーム内の**全プロジェクトを停止します**。つまりログインも、共有カタログも、チェキのアップロードも止まる。
 
-## なぜ速くするのか — 無料枠の話ではない
+そして、ユーザー数は**87人**でした。
 
-> ES: **La sección que le da sentido a todo lo demás, y va antes del primer dato
-> técnico.** Sin ella el artículo es «se me agotó el free tier y migré», que es una
-> anécdota. Con ella es «por qué la latencia decide si una app sobrevive».
->
-> El correo de Vercel fue el disparador, no el motivo. El motivo es dónde y cómo se
-> usa esta app:
->
-> **1. Se abre de pie, en el 現場, con una mano.**
-> 推しスキ no se consulta en un escritorio: se abre en el hueco entre actuaciones para
-> mirar a qué hora sale tu 推し, con el móvil en una mano y la ペンライト en la otra, en
-> un recinto lleno donde la cobertura ya es mala de por sí. Dos segundos ahí no se
-> leen como «va lento»: se leen como **«está rota»**, y guardas el móvil.
->
-> **2. Lo que se pierde no es una sesión, es la costumbre.**
-> Una app de agenda vive de que la abras ANTES de cada 現場. Si las tres primeras veces
-> tarda, no hay una cuarta — y sin esa costumbre no hay producto, porque nadie va a
-> abrir a mano una app que le cuesta más que mirar el post de X original.
->
-> ES: Ésta es la frase que sostiene el artículo:
-> **リテンションは機能じゃなくて、開くまでの時間で決まる。**
->
-> **3. Y el 42% no es una media: es una ruleta.**
-> Con casi la mitad de las peticiones pagando el arranque completo, no hay una
-> «experiencia lenta» uniforme a la que acostumbrarse. Unas veces abre al instante y
-> otras tarda dos segundos, sin patrón. **Una app impredecible se siente peor que una
-> lenta**, porque no puedes anticiparla — y eso es exactamente lo que produce el
-> serverless con tráfico disperso.
->
-> ES: Cerrar la sección conectando con el free tier, para que no parezca que se
-> ignora: el correo de Vercel solo puso fecha a algo que ya había que hacer. Sin él,
-> la migración habría pasado igual — más tarde y con más usuarios sufriéndolo.
+この記事は、「87人で無料枠が尽きるのはなぜか」を調べて、バックエンドをサーバーレスからサーバーに移すまでの話です。結果だけ先に書くと、**リクエストが5倍速くなって、コストは下がりました**。
 
-## 状況：アプリはリリース済み、トラフィックはほぼゼロ
+でも本題は速さでも値段でもありません。**サーバーレスが正解になる条件と、ならない条件**の話です。
 
-> ES: Contexto mínimo para que las cifras signifiquen algo. 推し活アプリ publicada en
-> App Store y Google Play; backend Next.js (App Router) + Hono + Prisma +
-> better-auth sobre Neon. Todo en el free tier de Vercel.
->   - 12時間で241インボケーション（月1.5万弱）
->   - Fluid Active CPU: 4時間の上限に対して3時間50分
+## なぜ最初にVercelを選んだのか
 
-## 犯人の見つけ方 — 推測しない
+推しスキは30日でリリースすると決めて作りました。時間との戦いだったので、インフラは「今すぐ動くもの」で良かった。Vercelは`git push`だけでデプロイされて、Next.jsの設定を何も書かなくていい。**その時点では、これは正しい判断でした**。
 
-> ES: **Sección de método, y es la que trabaja para el objetivo del artículo.** Un
-> lector con una app lenta se lleva de aquí un procedimiento que puede aplicar mañana,
-> y de paso saca la conclusión de que quien lo escribe sabe diagnosticar.
->
-> El orden importa, y va de lo barato a lo caro:
->
-> 1. **Observability → Functions, no el dashboard de Usage.** El total no dice nada;
->    lo que dice algo es **Active CPU P75 por ruta** y el **% de cold start por ruta**.
->    Ahí salió que el 20% de las invocaciones eran bots escaneando `/_not-found` y
->    `/robots.txt` — coste puro que nadie mira.
-> 2. **Dibujar el mapa físico antes de tocar nada**: dónde está el usuario, dónde la
->    función, dónde la base. Tres líneas en una tabla. En este caso el mapa era el
->    diagnóstico entero.
-> 3. **Contar los viajes, no las distancias.** Una petición son 1 viaje usuario↔servidor
->    y N viajes servidor↔base. Ese multiplicador es lo que casi nadie calcula antes de
->    elegir región, y es lo que decide.
-> 4. **Medir la cadena en frío de verdad**, con `curl -w "%{time_total}"`, en vez de
->    sumar estimaciones. La diferencia entre un artículo creíble y uno que suena a
->    marketing es ésa.
->
-> ES: Y decir explícitamente qué NO sirve: mirar el bundle, optimizar imágenes,
-> añadir caché. Nada de eso toca el problema cuando el coste está en el arranque.
-> Empezar por ahí es el error más común.
+インフラの検討に3日かけていたら、リリースが3日遅れます。ユーザーが0人のときに、1日あたり数円のコスト差を最適化する意味はありません。
 
-## 犯人はトラフィックではなかった
+ここは今でもそう思っています。**最初にVercelを選んだことは失敗ではない**。失敗だったのは、3週間後にその前提が変わっていることに気づいていなかったことです。
 
-> ES: El corazón del artículo. El desglose de Observability:
->   - Active CPU P75: **593ms／リクエスト**
->   - コールドスタート率: **42.3%**
->
-> Con tráfico bajo *y disperso*, Fluid no puede mantener instancias calientes. Casi
-> la mitad de las peticiones pagan el arranque completo de Next.js + Prisma +
-> better-auth. **Cuanto menos tráfico tienes, peor es el coste por petición.**
->
-> Y el método, que es lo que el lector se lleva: no adivines, mira Active CPU P75 y
-> el % de cold start POR RUTA. Ahí salió también que **~20% de las invocaciones eran
-> bots** escaneando `/_not-found` y `/robots.txt`.
+## 87人で無料枠が尽きる理由を探す
 
-## 地図を描いたら、原因が見えた
+まず、原因を推測せずに測りました。VercelのUsageとObservability → Functionsを見ます。
 
-> ES: La tabla que hace clic:
->
-> | | 場所 |
-> |---|---|
-> | ユーザー | 日本 |
-> | Vercel Functions | `iad1`（ワシントンDC）— **デフォルトのまま** |
-> | Neon | `ap-southeast-1`（シンガポール） |
->
-> Y la cadena en frío, sumada paso a paso:
->   1. 関数のコールドスタート（ワシントン）
->   2. 東京 → ワシントン
->   3. Neonの起動（5分でsuspendする）
->   4. ワシントン → シンガポール × クエリ数
->
-> Remate: **Neonも寝ていた。** El doble cold start es lo que nadie mide, y explica
-> la diferencia entre «lento» y «dos segundos».
+12時間分の本番リクエストは、こうでした。
 
-## 東京に移せば解決、ではなかった
+| 指標 | 値 |
+|---|---|
+| 12時間の実行回数 | **241回**（月換算 約14,500回） |
+| Active CPU P75 | **593ms / 1回** |
+| **コールドスタート率** | **42.3%** |
+| メモリ使用量 | 平均294MB（2GB確保） |
+| 消費ペース | 1日7〜9分のCPU、ほぼ平坦 |
 
-> ES: El giro que da valor al artículo para el lector japonés. Mover a Tokio EN
-> VERCEL arregla la latencia pero **sube la tarifa un 58%**: `hnd1` es la región más
-> cara del rate card. La tabla de regiones está en notes/.
->
-> Y el problema de fondo, el que decide: **el suelo**. El uso real valía $1,07/月;
-> el plan Pro cuesta $20/月. El problema no es el precio unitario, es el mínimo.
+月14,500リクエスト。ほぼトラフィックがない状態です。**無料枠は成功して尽きたのではなく、1リクエストが高すぎて尽きていました。**
+
+593msというのは、リクエストを処理している時間ではありません。ほとんどが**Next.js + Prisma + better-authを起動し直している時間**です。トラフィックが少なすぎてインスタンスが温まらないので、42%のリクエストが毎回ゼロから起動していました。
+
+<!-- ES: dato secundario que puedes usar o cortar según longitud —
+     ルート別の内訳で、`/_not-found` 38回 + `/robots.txt` 10回 = 全体の約20%が
+     ボットのスキャンだった。トラフィックのない個人開発では、コストの2割が
+     ボットというのは書く価値がある。 -->
+
+## サーバーレスが正解になる条件
+
+ここでいったん、一般論を挟みます。この判断の分かれ目が記事の中心なので。
+
+サーバーレスは「管理不要で、勝手にスケールして、安い」と思われていて、スタートアップを始める人のほとんどが最初にこれを選びます。**そして多くの場合それは正しい。**
+
+サーバーレスが明確に勝つのは、**ユーザーのアクセスが同じ時間帯に集中しているとき**です。理由は2つあります。
+
+- アクセスが密なのでインスタンスが温まったまま再利用され、**コールドスタートがほぼ起きない**
+- 使っていない時間帯は**課金されない**。サーバーは24時間ぶん払います
+
+B2Bの業務アプリのように「平日9時〜18時に一気に来て、夜は誰もいない」という形なら、サーバーレスは速くて安い。これは疑いようがありません。
+
+推しスキは逆でした。**ユーザーは少なく、アクセスは1日中まばらに散っている。** インスタンスは温まらず、42%が起動待ちになる。
+
+つまり、こういうことです。
+
+> **サーバーレスのデメリット（コールドスタート）を全部払って、メリット（密なアクセスでの効率）を一度も使えていなかった。**
+
+トラフィックが少ないことは、サーバーレスにとって有利ではありません。**不利です。** ここが直感と逆で、僕も測るまで分かっていませんでした。
+
+## 選択肢は2つだった
+
+原因がコールドスタートだと分かった時点で、選択肢はこうなりました。
+
+1. このままVercelで、Proプラン（$20/月）を払う
+2. サーバー型のサービスに移す
+
+Vercel Proを選んでも**コールドスタートは消えません**。42%の起動待ちはそのまま残って、月$20を払って「同じ遅さを継続する権利」を買うことになる。
+
+そして、東京リージョンに移せば速くなるのでは、とも考えました。デフォルトは`iad1`（ワシントンDC）です。ただし調べたら、**東京はVercelで最も高いリージョン**でした。
+
+| リージョン | Active CPU（時間あたり） |
+|---|---|
+| ワシントン `iad1` | $0.128 |
+| **東京 `hnd1`** | **$0.202**（+58%） |
+| シンガポール `sin1` | $0.160 |
+
+日本向けのプロダクトを作っている人には、これは知っておく価値のある数字だと思います。速くしようとすると58%高くなる。
+
+<!-- ES: fuente — https://vercel.com/docs/functions/usage-and-pricing（2026-08-22 確認）-->
+
+## なぜAWSでもGCPでもなく、Fly.ioにしたのか
+
+サーバーに移すと決めたあと、普通はAWS / Azure / Google Cloudが候補に挙がります。実際その3つには明確なメリットがあります。
+
+**でも僕のケースではオーバーキルでした。** そしてオーバーキルは「高い」だけでは終わりません。**管理が複雑になる**のが本当のコストです。ECS + ALB + RDS + IAM + VPCを一人で面倒を見るのと、コンテナ1つを動かすのとでは、障害が起きたときに原因にたどり着くまでの時間が違います。
+
+<!-- ES: ここでAWS SAAを持っていることに触れてもいい。「資格を取ったからこそ、
+     必要ない構成が分かる」という一文は、この記事の信頼性をかなり上げる。
+     入れるかどうかは好みなので、判断はJordiに。 -->
+
+Fly.ioにした理由は3つです。
+
+**1. 価格。** `shared-cpu-1x` 512MBで月$3.32。今のスケールでは十分すぎるし、10倍になっても構成を変える必要がありません。
+
+**2. スケールの形が合っている。** 常時起動が前提なので、そもそもコールドスタートという概念がない。これが解きたかった問題そのものでした。
+
+**3. これが決め手ですが、`fly.toml`とCLIだけで完結すること。**
+
+3つ目を補足します。僕は一人で開発していて、インフラの操作はClaude Codeにやらせています。設定が1つのTOMLファイルに書いてあって、操作が全部CLIで、出力がテキストで返ってくる。これは**AIエージェントに運用させるのに最も向いた形**です。
+
+GUIのコンソールを何画面もクリックして回る構成は、自分でやるぶんには問題なくても、エージェントに任せると途端に破綻します。「何を選んだか」がどこにも残らないからです。`fly.toml`はGitに入ります。
+
+インフラを選ぶときの基準に「AIに管理させやすいか」が入るようになったのは、たぶんここ1〜2年の話です。でも一人で開発しているなら、これは価格と同じくらい実務に効きます。
 
 ## サーバーはユーザーの近くではなく、DBの近くに置く
 
-> ES: **La mejor sección del artículo, y la que justifica escribirlo.** Es
-> contraintuitiva y está medida.
->
-> El plan era Tokio. Acabó en **Singapur**, y a propósito: Neon **no tiene región en
-> Japón**. La base estaba y sigue en `ap-southeast-1`.
->
-> Hacer el cálculo delante del lector, que es lo que casi nadie hace antes de elegir
-> región:
->   - ユーザー ↔ サーバー: **1往復**／リクエスト
->   - サーバー ↔ DB: **N往復**／リクエスト（クエリの数だけ）
->
-> Una pantalla hace varias queries. Poner el servidor en Tokio ahorra un viaje y
-> paga Tokio↔Singapur multiplicado por cada query. Poniéndolo **al lado de la base**,
-> el multiplicador desaparece y solo queda Japón↔Singapur una vez.
->
-> El número que lo cierra, medido: la query pasó de **1.541 ms a 35 ms**. No es que
-> Fly sea rápido — es que la query dejó de cruzar el océano.
->
-> La frase que se lleva el lector: **遅いのはユーザーとの距離ではなく、サーバーと
-> 「おしゃべりな依存先」との距離 × おしゃべりの回数。**
+<!-- ES: ESTA es la sección que hace que el artículo valga la pena. No estaba en
+     tu narrativa, pero es lo más contraintuitivo que hicimos y es verdad:
+     el servidor NO acabó en Tokio. Si la cortas, el artículo pierde su mejor idea. -->
 
-## Postgresの話：サーバーレスのほうが弱い
+ここが、この移行でいちばん意外だった部分です。
 
-> ES: La sección que más gente citará.
->   - Neon fijado en 0.25 CU (min = max), sin autoescalado
->   - `pooler_enabled: false`
->
-> Cada lambda abre su propia conexión → un pico da un connection storm. Un servidor
-> persistente mantiene un pool compartido y encola. **Ante un pico real, el servidor
-> único es MÁS robusto que las lambdas.**
->
-> ES: Ser justo aquí o el artículo pierde credibilidad: con el pooler activado el
-> problema se mitiga mucho. No es «serverless es malo», es «el default sin pooler te
-> traiciona».
+ユーザーは全員日本にいます。だから東京リージョンに置くのが当然に見えます。**でも僕はシンガポールに置きました。**
 
-## 移行先を選ぶ：Fly / Railway / AWS
+理由は、データベースです。使っているNeonには**日本リージョンがありません**。DBはシンガポール（`ap-southeast-1`）にあります。
 
-> ES: Comparación corta y honesta, con el criterio explícito:
->   - **Railway**: アジアはシンガポールのみ → （結果的には問題なかったが）当時は除外
->   - **AWS**: Lightsail/EC2は安いが、VPC・ALB・ACM・CI/CDの運用が個人には重い。しかも
->     NeonはAWS上でも別アカウントなので、同リージョンでも私設ネットワークにはならない
->   - **Fly**: `fly deploy`だけで済む、月$3〜5
->
-> ES: No escondas lo que se pierde: los preview deployments por PR de Vercel son
-> buenísimos y hay que reconstruirlos, o dejarlos en Vercel — que es lo que se hizo.
+ここで、リクエスト1回あたりの往復回数を数えます。
 
-## 移行の実際
+- ユーザー ↔ サーバー：**1往復**
+- サーバー ↔ DB：**画面が投げるクエリの数だけ往復**
 
-> ES: Los puntos que dolieron de verdad. Cada uno es un párrafo corto:
->   - `output: "standalone"` + **`outputFileTracingRoot`** en monorepo pnpm. Sin el
->     segundo, el standalone sale sin los `packages/*`: construye, arranca, y revienta
->     en el primer import.
->   - Prisma en Docker: **Debian y no Alpine**. Los engines para musl dan guerra y el
->     ahorro no compensa depurarlo el día del cutover.
->   - **`prisma generate` no arranca sin `DATABASE_URL`**, aunque no se conecte a
->     ninguna base: `prisma.config.ts` la resuelve al cargarse. Una URL de mentira en
->     el stage de build lo desbloquea.
->   - **Las `NEXT_PUBLIC_*` se hornean en el build, no en runtime** → build args, no
->     secrets. Es el error que no falla ruidosamente: se despliega apuntando al sitio
->     equivocado y no lo cuenta.
->   - `release_command` para `prisma migrate deploy`: si falla, Fly aborta y la
->     versión anterior sigue sirviendo.
->   - crons de `vercel.json` → GitHub Actions con `CRON_SECRET`.
->   - `fly logs` es un caño en vivo sin memoria → hace falta un sink externo.
+アプリの1画面は、だいたい複数回クエリを投げます。推しスキの場合、better-authが何よりも先にセッションを見にいくので、1クエリで済む画面はほぼありません。サーバーを東京に置くと、ユーザーとの1往復を短くする代わりに、**東京↔シンガポールの往復をクエリの数だけ払う**ことになります。
 
-## ログの仕組みが、デプロイを落とした
+日本からNeonシンガポールまでのRTTを測ったら**105ms**でした。この数字で計算します。
 
-> ES: **La mejor anécdota, y merece sección propia.** Es el tipo de fallo que solo se
-> cuenta si lo has vivido, y es lo que hace que un artículo se lea entero.
->
-> El transport a Axiom tenía un handler `beforeExit` para no perder los últimos logs.
-> `beforeExit` se emite cuando el event loop se vacía — o sea, justo cuando el proceso
-> ya se va. El fetch revivía el loop, el proceso salía igualmente, el socket moría a
-> media petición y undici emitía un 'error' fuera del `await`: excepción no capturada.
->
-> Mató el `release_command`, o sea `prisma migrate deploy`. Fly lo leyó como migración
-> fallida y abortó el despliegue. **El sistema de observabilidad tirando la aplicación
-> que observa.**
->
-> Dos lecciones concretas: (1) `SIGTERM` sí, `beforeExit` no; (2) en un fetch de
-> apagado hace falta `.catch()` PEGADO a la promesa además del try/catch, porque el
-> error llega fuera del await.
+| サーバーの場所 | 3クエリのリクエスト1回 |
+|---|---|
+| 東京 | 約**325ms**（105ms × 3 + ユーザーとの往復） |
+| シンガポール（DBの隣） | 約**110ms**（日本↔シンガポール1往復のみ） |
+
+サーバーをDBの隣に置くと掛け算が消えて、太平洋を渡る往復が**リクエストにつき1回だけ**残ります。
+
+実測はこうでした。
+
+| | 移行前 | 移行後 |
+|---|---|---|
+| DBクエリ | **1,541ms** | **35ms** |
+
+40倍です。**Flyが速いからではありません。クエリが太平洋を渡るのをやめたからです。**
+
+一般化するとこうなります。
+
+> **重要なのはユーザーからサーバーまでの距離ではなく、サーバーから「いちばんおしゃべりな依存先」までの距離 × そのおしゃべりさ。**
+
+そしてこの掛け算を、リージョンを決める前に計算している人はほとんどいません。僕も最初は東京に置くつもりでした。
+
+## サーバーには「運用」がついてくる
+
+ここは正直に書きます。サーバーレスをやめるということは、**サーバーレスが肩代わりしてくれていた仕事が自分に返ってくる**ということです。
+
+サーバーレスなら、CPUもメモリも勝手に増えます。サーバーは増えません。**上限に当たったら、ユーザーがアプリを使えなくなります。**
+
+そしてもう一つ、多くの人が「自分には関係ない」と思っていることがあります。**ボットとDoS攻撃です。**
+
+会社で複数のスタートアップのアプリを作ってきましたが、**攻撃は数え切れないほど起きました**。どれも有名なサービスではありません。小さくても、必ず起きます。公開されたIPアドレスとポートがあるというだけで理由は十分です。
+
+サーバーレスならこれは「請求書が跳ね上がる」形で現れますが、サーバーなら「落ちる」形で現れます。どちらもまずい。
+
+なので、移行と同時に運用側を用意しました。
+
+**オートスケールの上限を2マシンに固定（`max_machines_running = 2`）。**
+際限なくスケールさせると、ボットの波やアプリ側のループが、そのまま請求額になります。上限があれば最悪でも「遅くなる」で止まる。2マシンで足りない日が来たら、それは自動で増やす話ではなく**人間が判断すべき出来事**です。深夜にカードが一人で血を流すよりいい。
+
+**常時1マシン起動。ただし`auto_stop_machines = false`ではありません。**
+
+ここは一度間違えました。「止めたくないんだから`false`だろう」と考えたのですが、逆でした。
+
+```toml
+auto_stop_machines   = "stop"  # 余ったマシンは空になったら止める
+auto_start_machines  = true
+min_machines_running = 1       # ← コールドスタートを消しているのはコレ
+```
+
+スケールゼロを防いでいるのは`min_machines_running = 1`のほうです。`auto_stop_machines = false`にすると1台も止まらなくなり、**Flyは新しいマシンをその場で作らず「止まっているマシンを起こす」方式なので、オートスケールが死にます**。止める設定を消すと、増やす機能まで消える。
+
+**デプロイ戦略を`bluegreen`に。**
+デフォルトの`rolling`は、マシンが1台だと古いのを止めてから新しいのを起動します。つまり**デプロイのたびに30秒落ちる**。`bluegreen`は新しいマシンを並行して立て、ヘルスチェックが通ってからトラフィックを移します。2台目はデプロイ中しか存在せず、Flyは秒課金なので、費用は1回あたり数セントです。
+
+**ヘルスチェック用の`/api/health`を新設。** 移行前は存在すらしていませんでした。中身は`SELECT 1`です。**プロセスは生きているのにPostgresに届かない**のが実際の落ち方なので、そこを503で返させないと監視する意味がない。
+
+**同時実行の閾値は、意図的に高めに。**
+`soft_limit = 80` / `hard_limit = 120`。今の実トラフィック（1時間に30リクエスト程度）ではまず発動しません。それでいい。1台目が2%の負荷のときに2台目を立てるのは、ただの浪費です。
+
+そしてこれは**同時実行数**であって累計ではありません。ログを埋め尽くすボットのスキャン（`/api/.env`、`/api/proxy`…）は1msで404を返して終わるので時間的に重ならず、ここには数えられない。80に触れるには**本物の人間が同時に来る**必要があります。
+
+なお80/120に計算の根拠はありません。保守的な出発点です。**正しい数字は、トラフィックが来た日に「どの同時実行数からレイテンシが上がり始めるか」を見るまで分かりません。**
+
+**Cloudflareをプロキシモード（オレンジ）にしてWAFを有効化。** 無料でボット対策が付いてきます。SSLは`Full`ではなく**`Full (strict)`**に。`Full`は暗号化はしますが、**オリジンの証明書を検証しません**。
+
+**ログをAxiomに送る。** Vercel Hobbyのログ保持は1時間で、障害の翌朝には何も残っていませんでした。今は30日です。
+
+**そして、まだできていないこと。**
+外部のUptime監視（UptimeRobotやBetter Stackのようなもの）は**まだ入れていません**。今あるのはFlyのヘルスチェックだけで、これはマシンを再起動してはくれますが、**「サービスが落ちている」と僕に知らせてはくれません**。一人で開発していると、落ちたことに気づくのが翌朝になります。ここは穴として自覚しています。
+
+---
+
+「サーバーレスは管理不要」という言い方は、正確には「**管理をお金で買っている**」です。買うのをやめたら、自分でやる。それが割に合うかどうかが判断のすべてで、僕の場合は割に合いました。**逆に、この運用を用意する時間が取れないなら、サーバーレスのままでいるほうが正しいです。**
+
+## 移行中に壊れたもの
+
+<!-- ES: esta sección es la que más credibilidad da. Si hay que recortar el
+     artículo, corta otra cosa. Detalle completo en las notas. -->
+
+うまくいった話だけ書くと嘘になるので、詰まったところを3つ。
+
+**1. `prisma generate`が`DATABASE_URL`なしで起動しない。**
+`prisma.config.ts`が読み込み時にURLを解決するので、Dockerのビルドが何も生成する前に落ちます。`generate`は実際にはDBに接続しないのに、です。ビルドステージにダミーのURLを渡して解決しました。
+
+**2. ログの仕組みがデプロイを落とした。**
+Axiomへflushする`beforeExit`ハンドラを書いていました。このイベントはイベントループが空になったとき、つまりプロセスが終わろうとしているときに発火します。そこでfetchするとループが復活し、ソケットがリクエストの途中で死んで、undiciが未捕捉の例外を投げる。それが`release_command`（`prisma migrate deploy`）を巻き込んで、Flyは「マイグレーション失敗」と判断しました。
+
+**監視の仕組みがアプリを落とす**というのは、なかなか味わい深い失敗でした。
+
+**3. ANSIエスケープがそのままログに入っていた。**
+`--> GET /api/health \x1b[32m200\x1b[0m` のような形です。`200`で検索しても何もヒットしない。障害のときにいちばん検索したい文字列が、色コードに埋もれていました。
 
 ## 引っ越したら、壊れていたものが3つ見つかった
 
-> ES: Sección corta y honesta. Mover de sitio obliga a mirarlo todo:
->   - **R2 estaba roto en producción**: las `S3_*` solo existían en Preview, así que
->     el proxy de imágenes devolvía 500. Nadie lo había notado.
->   - **El logo del login era un 404**: `NEXT_PUBLIC_MARKETING_URL` apuntaba a un
->     dominio `.vercel.app` muerto.
->   - **La base iba 18 días por delante del código**: migraciones aplicadas desde
->     `develop` sin que `main` las tuviera.
->
-> La lección: una migración es una auditoría con fecha límite.
+移行そのものとは別に、**全部の環境変数を総点検したせいで**見つかったものがあります。
+
+- **本番のR2が動いていなかった。** `S3_*`がPreview環境にしか設定されておらず、`image-proxy`が本番で500を返していました。誰も気づいていませんでした
+- **`NEXT_PUBLIC_MARKETING_URL`が死んだドメインを指していた。** ログイン画面のロゴが404
+- **DBがコードより18日進んでいた。** `develop`から本番DBにマイグレーションが当たっていて、`main`にはそれが無い状態でした
+
+引っ越しの価値の半分は、**普段見ないところを全部見ることになる**ことだと思います。
 
 ## 結果
 
-> ES: La tabla, con las cifras medidas (todas en notes/):
->
-> | | 前 | 後 |
-> |---|---|---|
-> | DBクエリ | 1,541 ms | **35 ms** |
-> | リクエスト全体 | ~1.9 s | ~0.35 s |
-> | コールドスタート | 42.3% | **0** |
-> | 費用 | $20/月（下限） | ~$3.5/月 |
->
-> ES: Y lo que de verdad importa de esa tabla, dicho explícitamente para volver al
-> principio: **la línea que cuenta no es la de los milisegundos, es la del 42% → 0.**
-> Antes la app abría rápido o tardaba dos segundos según le tocara; ahora abre igual
-> siempre. Lo que se ganó no es velocidad — es que sea **predecible**, que es lo que
-> hace que alguien la abra sin pensarlo antes del 現場 siguiente.
->
-> ⚠️ ES: Y la honestidad que toca: **no hay dato de retención todavía.** La migración
-> es de hace nada y el volumen es pequeño; decir «mejoró la retención un X%» sería
-> inventarlo. Lo que se puede afirmar es lo medido —la latencia y la varianza— y el
-> razonamiento de por qué eso importa en esta app. Decirlo así vale más que un número
-> falso, y en los comentarios lo agradecen.
->
-> Y el matiz que hay que incluir o el artículo es deshonesto: **Vercel mejora con la
-> escala.** Los 593 ms/invocación son consecuencia del 42% de cold starts; con tráfico
-> denso las instancias se reutilizan y eso baja mucho. La regla de tres sobrestima el
-> coste de Vercel a escala alta.
+| | 移行前（Vercel） | 移行後（Fly） |
+|---|---|---|
+| DBクエリ | 1,541ms | **35ms** |
+| リクエスト全体 | 約1.9s | **約0.35s** |
+| コールドスタート | 42.3% | **0** |
+| コスト | Pro $20/月（実使用は$1相当） | **約$3.5/月** |
+| ログ保持 | 1時間 | 30日 |
 
-## 試して、外れたこと
+**約5倍**です。そしてコストは下がりました。
 
-> ES: **Sección obligatoria, y de las que más autoridad dan.** Contar solo lo que
-> funcionó hace que parezca suerte; contar lo que se descartó y por qué demuestra que
-> hubo método. Tres, todas medidas:
->
-> **1. 「東京に移せばいい」** — la respuesta obvia y la equivocada. Arregla la latencia
-> del usuario y multiplica por N la de la base, además de ser la región más cara de
-> Vercel. Se descartó calculando, no probando.
->
-> **2. 「Proもう払えばいい」** — también razonable, y también no: el problema no era el
-> precio unitario ($1,07 de uso real) sino que existe un suelo de $20. Pagar habría
-> tapado el síntoma dejando intactos los cold starts, que eran lo que se sentía.
->
-> **3. El sistema de logs, que tumbó un despliegue.** Contado en su sección. Es el
-> mejor ejemplo de que una herramienta de observabilidad mal metida hace más daño que
-> no tenerla.
->
-> ES: Cerrar con lo que esto le enseña al lector sobre su propio proyecto: **antes de
-> mover nada, comprobar cuál de las tres respuestas obvias es la suya — y por qué no
-> lo es.**
+<!-- ES: sobre el precio de Fly — NO escribas「無料プランで十分」. Fly retiró el
+     free tier; hoy hay un allowance mensual en el plan Hobby. Lo verificable y
+     honesto es el número medido: ~$3.5/mes. Lo dejo así en el draft. -->
 
-## おわりに
+**Vercelのために公平に書いておきます。** 593ms/リクエストは42%のコールドスタートの結果であって、トラフィックが密になればインスタンスが再利用されてこの数字は大きく下がります。**Vercelはスケールすると良くなります。** この記事の結論は「Vercelが高い」ではなく、「僕のトラフィックの形に合っていなかった」です。
 
-> ES: Cerrar con la lección transferible, no con «migré y ya». Tres frases que
-> aguantan:
->   1. **無料枠は成功で尽きるとは限らない。** アーキテクチャのミスマッチでも尽きる。
->   2. トラフィックが少なく、ユーザーが一つの国に集中しているなら、**常時起動の
->      サーバーのほうが速くて安い**。サーバーレスが輝くのは、その逆の形のとき。
->   3. リージョンは「ユーザーの近く」ではなく「一番おしゃべりな依存先の近く」で選ぶ。
->
-> Y la nota de humildad que lo hace creíble: esto es reversible. Si el perfil cambia,
-> volver a serverless es un fin de semana. No es una guerra santa, es elegir la forma
-> que encaja con la carga de HOY.
->
-> ES: Enlace al artículo 2 al final, en una línea: la landing salió del servidor
-> después, y ésa es otra historia.
+そして**この判断は可逆です**。トラフィックの形が変わったら、戻せばいい。
+
+## なぜ速さが大事なのか
+
+最後に、5倍が何の役に立つのかを書きます。ここが抜けると、ただのベンチマーク自慢になるので。
+
+**B2Bなら、遅いサービスはたくさんあります。** そして多くの場合それで問題ない。業務で使うツールは、遅くても他に選択肢がないからです。
+
+**B2Cでは、印象が全てです。**
+
+推しスキは、机の前で開くアプリではありません。**現場で、ライブの合間に、片手で開きます。** 推しの出番が何時なのかを確認するために、もう片方の手にはペンライトを持って、電波の悪い会場で。
+
+その状況で2秒待たされるのは「遅い」とは読まれません。**「壊れている」と読まれます。** そして画面を閉じる。
+
+失われるのは1セッションではなく、**習慣**です。予定を管理するアプリは、現場に行く前に開いてもらえないと存在価値がありません。最初の3回もたついたら、4回目はない。
+
+> **リテンションは機能では決まりません。開くまでの時間で決まります。**
+
+しかも42%というのは平均の遅さではなく、**ばらつき**です。あるときは一瞬で開き、あるときは2秒待つ。規則性がない。**予測できないアプリは、一貫して遅いアプリより体感が悪い**というのが、今回いちばん腹に落ちたことでした。
+
+---
+
+<!-- ES: enlace al segundo artículo. Ponerlo cuando landing-off-the-server esté
+     publicado; si sale antes éste, borra este bloque. -->
+
+この移行のあと、同じサーバーに乗っていたランディングページを外に出しました。そちらは「なぜマーケティングサイトはアプリケーションサーバーと一緒に落ちてはいけないか」という別のテーマなので、記事を分けています。
+
+<!-- ES: PENDIENTE DE VERIFICAR antes de publicar —
+     ・「ダウン時のメール通知」: ¿está realmente configurado el uptime monitor?
+       Si no lo montamos, hay que quitarlo o montarlo. NO publicar sin comprobar.
+     ・La cifra de 87 usuarios: mis notas decían no exponer tracción, pero es tu
+       llamada y el número refuerza el argumento. Lo he dejado porque lo pediste.
+-->
