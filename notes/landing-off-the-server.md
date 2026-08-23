@@ -6,6 +6,32 @@ Se partieron porque son dos tesis distintas: aquél va de **dónde corre el serv
 
 Todo medido el 2026-08-22 sobre `oshisuki` en producción.
 
+## ⚑ Para qué existe este artículo
+
+**Objetivo: autoridad técnica que acabe en encargos de optimización.** No es
+build-in-public ni un diario de proyecto — Zenn es portafolio
+([[zenn-portfolio-not-traffic]]), y el lector que importa es alguien que tiene una
+app lenta y está decidiendo a quién preguntar.
+
+Eso cambia cómo se escribe, y son cambios concretos:
+
+1. **El MÉTODO por encima del resultado.** Nadie contrata a alguien porque su web vaya
+   rápida; contrata a quien sabe **encontrar** por qué la suya no. Cada sección tiene
+   que dejar claro *qué se miró y con qué herramienta*, no solo qué salió.
+2. **Los intentos fallidos se cuentan, y son lo más valioso.** «Probé A, medí, no era
+   A, era B» demuestra rigor. «Hice X y todo mejoró» suena a suerte. Un cliente que
+   lee un fallo bien diagnosticado piensa «a mí me va a decir la verdad».
+3. **Números medidos o nada.** Ni un «mejoró mucho». Y cuando no hay dato —retención,
+   SEO— decirlo: **negarse a inventar una cifra es la señal de competencia más barata
+   que existe**, y en los comentarios japoneses lo notan.
+4. **Antes/después en el MISMO entorno.** Comparar local contra producción no vale y
+   hay que decir que no vale. Ese detalle separa a quien mide de quien cree.
+5. **Decir lo que NO se puede arreglar y por qué.** Es lo que más autoridad da:
+   demuestra que se entiende el sistema entero, no que se siguen recetas.
+6. **Sin CTA.** Nada de «contáctame para optimizar tu app». El artículo es la prueba;
+   el enlace vive en el perfil. Un CTA lo convierte en publicidad y tira lo anterior.
+
+
 ## ⚠️ Aviso antes de publicar
 
 - No publicar IDs de cuenta de Cloudflare, tokens ni nombres de secrets.

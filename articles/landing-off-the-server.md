@@ -16,7 +16,8 @@ published: false
      Publicar éste DESPUÉS y con unos días de separación: son dos ideas y merecen
      dos lecturas.
 
-     TÍTULO — candidatos, por el problema y no por la herramienta:
+     TÍTULO — el lector objetivo tiene una landing lenta o mal indexada y busca a
+     quién preguntar. Por el problema, y por el SUYO, no por la herramienta:
        a) アプリのAPIは引っ越せない ― 1つのドメイン、2つのオリジン  ← la restricción
        b) ランディングページが、サーバーと一緒に落ちる  ← el problema
        c) Googlebotに5xxを見せ続けると、インデックスから消える  ← la consecuencia
@@ -33,16 +34,45 @@ published: false
 > Así que no es «mover la web a otro sitio». Es **partir un dominio entre dos
 > orígenes**, y eso solo se decide en el borde. Ése es el artículo.
 
-## なぜ分けたのか
+## なぜ速くするのか — 「速い＝いいこと」では記事にならない
 
-> ES: El motivo NO es rendimiento, y conviene decirlo pronto para que no parezca
-> optimización porque sí: `oshisuki.com` es la base de crecimiento por SEO, blog
-> incluido. **Googlebotが5xxを見続けると、クロールバジェットが削られ、最後には
-> インデックスから消える。**
+> ES: **La sección que decide si el artículo vale algo.** Sin ella esto es un tutorial
+> más de optimización; con ella es una decisión de negocio explicada. Va ARRIBA, antes
+> de cualquier detalle técnico.
 >
-> Un servidor de aplicación se cae: se despliega mal, se queda sin memoria, la base
-> no responde. Eso es asumible para la app. No lo es para el contenido que tiene que
-> estar ahí cuando pase el rastreador.
+> La landing de un producto no existe para ser bonita: existe para convertir una visita
+> en una instalación. Tres motivos concretos, y ninguno es «me gusta que vaya rápido»:
+>
+> **1. SEO — es de donde tiene que venir el crecimiento.**
+> El LCP es factor de ranking directo (Core Web Vitals). Y hay algo peor que rankear
+> mal: Googlebot que se encuentra 5xx sostenidos **recorta el presupuesto de rastreo**
+> y acaba desindexando. Una landing que comparte servidor con la API se cae cuando se
+> cae la API — y el rastreador no vuelve a intentarlo como lo haría una persona.
+>
+> **2. CRO — cada segundo se lleva instalaciones.**
+> Toda la landing existe para un solo evento: pulsar el botón de la tienda. Quien llega
+> y espera tres segundos a que aparezca el hero no llega a ese botón. No hay forma de
+> medir cuántos se pierden —los que se van no dejan rastro—, así que **hay que decirlo
+> como lo que es: un coste invisible.** No inventar un porcentaje.
+>
+> **3. La campaña — el tráfico de un post se quema una sola vez.**
+> Éste es el que más duele y el que menos se escribe. El tráfico no viene de Google
+> todavía: viene de X, de posts que cuestan una tarde escribir. Ese tráfico llega
+> **concentrado en veinte minutos** y no se repite. Si la landing tarda en abrir
+> justo entonces, el trabajo del post se ha ido — y no hay reintento.
+>
+> ES: La frase que resume las tres y que puede abrir el artículo:
+> **ランディングページが遅いのは、UXの問題じゃなくて集客の問題。**
+
+## なぜサーバーから出したのか
+
+> ES: Aquí ya sí el motivo técnico, que ahora se lee como consecuencia de lo de arriba
+> y no como capricho: un servidor de aplicación se cae —se despliega mal, se queda sin
+> memoria, la base no responde—. Eso es asumible para la app: el usuario reintenta.
+>
+> No lo es para el contenido que sostiene los tres puntos anteriores. Ahí quien pasa
+> mientras está caído es un rastreador que no reintenta igual, o alguien que venía de
+> un post y no va a volver.
 
 ## 分ける前に気づいたこと：ルートレイアウトの動的API
 
@@ -172,6 +202,69 @@ published: false
 > un paso que filtraba por un paquete inexistente. **pnpm sale con 0 cuando el filtro
 > no encuentra nada**, así que llevaba tiempo en verde sin ejecutar un solo test.
 > 何も検証しないチェックは、無いより悪い。カバレッジがあるように見えるから。
+
+## 直らなかったこと、そしてなぜ直らないのか
+
+> ES: **La sección que más autoridad da del artículo, y la que casi nadie escribe.**
+> Demuestra que se entiende el sistema entero en vez de aplicar recetas. Y es honesta:
+> el número se quedó donde se quedó.
+>
+> Tras sacar la landing del servidor, recortar la tipografía y arreglar el LCP, el
+> **Performance de móvil no se movió de 74**. Se probaron tres cosas por separado,
+> midiendo cada una contra la misma base en el mismo servidor:
+>
+> | | Score | LCP |
+> |---|---|---|
+> | 何もしない | 74 | 9.5 s |
+> | + `priority` | 74 | 9.8 s |
+> | + PostHogをidleに | 74 | 9.8 s |
+> | + 動的import | **74** | **8.6 s** |
+>
+> El motivo, y es aritmética: Lighthouse móvil simula **1,6 Mbps** y la página pesa
+> **1,6 MB**. Son **8,2 segundos solo de descarga**. Con ese suelo, ningún orden de
+> carga cambia la nota — solo quitar bytes la cambia.
+>
+> | | 重さ | % |
+> |---|---|---|
+> | **JavaScript** | **776 KB** | **46%** |
+> | フォント | 440 KB | 26% |
+> | 画像 | 228 KB | 14% |
+>
+> ES: La conclusión transferible, que es lo que se lleva el lector:
+> **スコアが動かないときは、順番ではなくバイト数を見る。**
+>
+> Y el matiz que separa medir de creer: el LCP **real** del trace es de **492 ms**.
+> Los 8,6 s son la simulación de una red muy lenta. Los dos números son correctos y
+> miden cosas distintas — explicar eso vale más para el lector que subir a 90.
+
+## 試して、外れたこと
+
+> ES: **Cuatro intentos fallidos, todos medidos.** Van juntos porque cada uno enseña
+> algo distinto sobre diagnosticar, y porque contar solo los aciertos hace que parezca
+> suerte.
+>
+> **1. `priority` en la imagen del LCP.** Es objetivamente correcto —`next/image` la
+> marcaba `loading="lazy"`— pero **no movió el número**: su preload compite con el CSS
+> y las fuentes, y se compensa. Se queda igualmente, porque en una red real sí ayuda.
+> Lección: *un arreglo puede ser correcto y no salir en el marcador.*
+>
+> **2. `aria-hidden` para eximir del contraste.** Dos textos de 9 px dentro de una
+> ilustración: parecía que marcándolos como decorativos quedaban fuera del criterio.
+> **axe los siguió midiendo, y con razón**: `aria-hidden` los saca del lector de
+> pantalla, pero **el texto sigue viéndose**, y el criterio de contraste existe para
+> quien tiene poca visión, no para quien no ve nada. La exención de WCAG es para texto
+> dentro de una imagen de píxeles.
+>
+> **3. `/api/health` como sonda de Playwright.** Al mudarse la landing, el CI se quedó
+> esperando tres minutos a `/`, que ya no existía. El arreglo evidente era apuntar a
+> `/api/health` —el endpoint que existe justo para decir «estoy vivo»— y era una
+> trampa: hace `SELECT 1`, así que devuelve 503 cuando la base duerme. Habría cambiado
+> un timeout de tres minutos por el mismo timeout de tres minutos.
+>
+> **4. Oscurecer el color de marca para cumplir contraste.** Cumplía. Pero ese color
+> también es FONDO de una cápsula, y oscurecido deja de leerse como rosa: se lee
+> granate. Se revirtió. Lección: *un token de color no se cambia sin mirar en qué
+> propiedad se usa*.
 
 ## おわりに
 

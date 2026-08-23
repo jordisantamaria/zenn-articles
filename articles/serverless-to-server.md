@@ -51,6 +51,40 @@ published: false
 > La pregunta del artículo en una línea:
 > 「ユーザーがほとんどいないのに、なぜ無料枠を使い切ったのか？」
 
+## なぜ速くするのか — 無料枠の話ではない
+
+> ES: **La sección que le da sentido a todo lo demás, y va antes del primer dato
+> técnico.** Sin ella el artículo es «se me agotó el free tier y migré», que es una
+> anécdota. Con ella es «por qué la latencia decide si una app sobrevive».
+>
+> El correo de Vercel fue el disparador, no el motivo. El motivo es dónde y cómo se
+> usa esta app:
+>
+> **1. Se abre de pie, en el 現場, con una mano.**
+> 推しスキ no se consulta en un escritorio: se abre en el hueco entre actuaciones para
+> mirar a qué hora sale tu 推し, con el móvil en una mano y la ペンライト en la otra, en
+> un recinto lleno donde la cobertura ya es mala de por sí. Dos segundos ahí no se
+> leen como «va lento»: se leen como **«está rota»**, y guardas el móvil.
+>
+> **2. Lo que se pierde no es una sesión, es la costumbre.**
+> Una app de agenda vive de que la abras ANTES de cada 現場. Si las tres primeras veces
+> tarda, no hay una cuarta — y sin esa costumbre no hay producto, porque nadie va a
+> abrir a mano una app que le cuesta más que mirar el post de X original.
+>
+> ES: Ésta es la frase que sostiene el artículo:
+> **リテンションは機能じゃなくて、開くまでの時間で決まる。**
+>
+> **3. Y el 42% no es una media: es una ruleta.**
+> Con casi la mitad de las peticiones pagando el arranque completo, no hay una
+> «experiencia lenta» uniforme a la que acostumbrarse. Unas veces abre al instante y
+> otras tarda dos segundos, sin patrón. **Una app impredecible se siente peor que una
+> lenta**, porque no puedes anticiparla — y eso es exactamente lo que produce el
+> serverless con tráfico disperso.
+>
+> ES: Cerrar la sección conectando con el free tier, para que no parezca que se
+> ignora: el correo de Vercel solo puso fecha a algo que ya había que hacer. Sin él,
+> la migración habría pasado igual — más tarde y con más usuarios sufriéndolo.
+
 ## 状況：アプリはリリース済み、トラフィックはほぼゼロ
 
 > ES: Contexto mínimo para que las cifras signifiquen algo. 推し活アプリ publicada en
@@ -58,6 +92,32 @@ published: false
 > better-auth sobre Neon. Todo en el free tier de Vercel.
 >   - 12時間で241インボケーション（月1.5万弱）
 >   - Fluid Active CPU: 4時間の上限に対して3時間50分
+
+## 犯人の見つけ方 — 推測しない
+
+> ES: **Sección de método, y es la que trabaja para el objetivo del artículo.** Un
+> lector con una app lenta se lleva de aquí un procedimiento que puede aplicar mañana,
+> y de paso saca la conclusión de que quien lo escribe sabe diagnosticar.
+>
+> El orden importa, y va de lo barato a lo caro:
+>
+> 1. **Observability → Functions, no el dashboard de Usage.** El total no dice nada;
+>    lo que dice algo es **Active CPU P75 por ruta** y el **% de cold start por ruta**.
+>    Ahí salió que el 20% de las invocaciones eran bots escaneando `/_not-found` y
+>    `/robots.txt` — coste puro que nadie mira.
+> 2. **Dibujar el mapa físico antes de tocar nada**: dónde está el usuario, dónde la
+>    función, dónde la base. Tres líneas en una tabla. En este caso el mapa era el
+>    diagnóstico entero.
+> 3. **Contar los viajes, no las distancias.** Una petición son 1 viaje usuario↔servidor
+>    y N viajes servidor↔base. Ese multiplicador es lo que casi nadie calcula antes de
+>    elegir región, y es lo que decide.
+> 4. **Medir la cadena en frío de verdad**, con `curl -w "%{time_total}"`, en vez de
+>    sumar estimaciones. La diferencia entre un artículo creíble y uno que suena a
+>    marketing es ésa.
+>
+> ES: Y decir explícitamente qué NO sirve: mirar el bundle, optimizar imágenes,
+> añadir caché. Nada de eso toca el problema cuando el coste está en el arranque.
+> Empezar por ahí es el error más común.
 
 ## 犯人はトラフィックではなかった
 
@@ -209,10 +269,44 @@ published: false
 > | コールドスタート | 42.3% | **0** |
 > | 費用 | $20/月（下限） | ~$3.5/月 |
 >
+> ES: Y lo que de verdad importa de esa tabla, dicho explícitamente para volver al
+> principio: **la línea que cuenta no es la de los milisegundos, es la del 42% → 0.**
+> Antes la app abría rápido o tardaba dos segundos según le tocara; ahora abre igual
+> siempre. Lo que se ganó no es velocidad — es que sea **predecible**, que es lo que
+> hace que alguien la abra sin pensarlo antes del 現場 siguiente.
+>
+> ⚠️ ES: Y la honestidad que toca: **no hay dato de retención todavía.** La migración
+> es de hace nada y el volumen es pequeño; decir «mejoró la retención un X%» sería
+> inventarlo. Lo que se puede afirmar es lo medido —la latencia y la varianza— y el
+> razonamiento de por qué eso importa en esta app. Decirlo así vale más que un número
+> falso, y en los comentarios lo agradecen.
+>
 > Y el matiz que hay que incluir o el artículo es deshonesto: **Vercel mejora con la
 > escala.** Los 593 ms/invocación son consecuencia del 42% de cold starts; con tráfico
 > denso las instancias se reutilizan y eso baja mucho. La regla de tres sobrestima el
 > coste de Vercel a escala alta.
+
+## 試して、外れたこと
+
+> ES: **Sección obligatoria, y de las que más autoridad dan.** Contar solo lo que
+> funcionó hace que parezca suerte; contar lo que se descartó y por qué demuestra que
+> hubo método. Tres, todas medidas:
+>
+> **1. 「東京に移せばいい」** — la respuesta obvia y la equivocada. Arregla la latencia
+> del usuario y multiplica por N la de la base, además de ser la región más cara de
+> Vercel. Se descartó calculando, no probando.
+>
+> **2. 「Proもう払えばいい」** — también razonable, y también no: el problema no era el
+> precio unitario ($1,07 de uso real) sino que existe un suelo de $20. Pagar habría
+> tapado el síntoma dejando intactos los cold starts, que eran lo que se sentía.
+>
+> **3. El sistema de logs, que tumbó un despliegue.** Contado en su sección. Es el
+> mejor ejemplo de que una herramienta de observabilidad mal metida hace más daño que
+> no tenerla.
+>
+> ES: Cerrar con lo que esto le enseña al lector sobre su propio proyecto: **antes de
+> mover nada, comprobar cuál de las tres respuestas obvias es la suya — y por qué no
+> lo es.**
 
 ## おわりに
 
