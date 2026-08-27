@@ -3,8 +3,7 @@ title: "2026年、個人開発のバックエンドはどこで動かすか。�
 emoji: "🌏"
 type: "tech"
 topics: ["個人開発", "flyio", "vercel", "posthog", "サーバーレス"]
-published: true
-published_at: 2026-08-28 08:00
+published: false
 ---
 
 個人開発のバックエンドを **Vercel（サーバーレス）から Fly.io（サーバー）へ移したら、リクエストが約5倍速くなって、月額も下がりました。** 移行にかかった時間は3時間です。
