@@ -648,9 +648,9 @@ export async function notifyAdmin({ kind, subject, details }: AdminAlertInput) {
 
 | 届くもの | 送り主 | 鳴る条件 | やること |
 | --- | --- | --- | --- |
-| 落ちた | Better Stack | `/api/health` が3分応答しない | 今すぐ復旧する |
-| ランディングが壊れた | Better Stack | ページに製品名の文字列が無い | ホスティング側を見る（200は返っている） |
-| 定期実行が止まった | Better Stack | ハートビートが24時間来ない | 走らなかった原因を探す（ログは無い） |
+| 落ちた | Better Stack Uptime | `/api/health` が3分応答しない | 今すぐ復旧する |
+| ランディングが壊れた | Better Stack Uptime | ページに製品名の文字列が無い | ホスティング側を見る（200は返っている） |
+| 定期実行が止まった | Better Stack Uptime | ハートビートが24時間来ない | 走らなかった原因を探す（ログは無い） |
 | ログが消えた | Axiom | 15分間ログが0行 | 生きているかを外から確かめる |
 | 5xx | Axiom | 5分以内に1件でも | 直近のデプロイを疑う |
 | エラーが増えた | PostHog | 週1回のダイジェスト（即時通知は無い） | 増えたエラーを直す |
