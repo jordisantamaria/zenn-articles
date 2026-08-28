@@ -2,7 +2,7 @@
 title: "2026年、個人開発のバックエンドはどこで動かすか。AIに測らせて20倍速くなった"
 emoji: "🌏"
 type: "tech"
-topics: ["個人開発", "ai", "mcp", "サーバーレス", "vercel"]
+topics: ["ai", "claudecode", "個人開発", "mcp", "vercel"]
 published: true
 ---
 
