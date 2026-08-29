@@ -774,13 +774,13 @@ Axiom側はAPL（Axiom Processing Language）のクエリ、データセット�
 
 ## おわりに
 
-結果は、この画像にまとまっています。
-
-![アプリとランディングがFly.ioのAPIへ。APIとPlanetScaleは同じ東京リージョンで6ms、日本からの往復は60〜85ms。ログはAxiom、製品分析とエラーはPostHog、死活監視はBetter Stack、そのすべてがメールに集まる構成図](/images/backend-architecture.png)
-
 **月$8.3で、日本から60〜85ms。** 人間が「瞬時に反応した」と感じる限界は0.1秒（Jakob Nielsen, 1993）。その内側で返ってきます。成長しても上がるのはプランの値段だけで、3年で1万人まで伸びて月$29。速さはそのままです。
 
 そして遅くなったら、メールが届きます。あとはAIに相談して、その場で直せます。速いサービスはユーザーが喜び、それは売上につながります。
+
+結果は、この画像にまとまっています。
+
+![アプリとランディングがFly.ioのAPIへ。APIとPlanetScaleは同じ東京リージョンで6ms、日本からの往復は60〜85ms。ログはAxiom、製品分析とエラーはPostHog、死活監視はBetter Stack、そのすべてがメールに集まる構成図](/images/backend-architecture.png)
 
 ---
 
