@@ -778,7 +778,7 @@ Axiom側はAPL（Axiom Processing Language）のクエリ、データセット�
 
 ![アプリとランディングがFly.ioのAPIへ。APIとPlanetScaleは同じ東京リージョンで6ms、日本からの往復は60〜85ms。ログはAxiom、製品分析とエラーはPostHog、死活監視はBetter Stack、そのすべてがメールに集まる構成図](/images/backend-architecture.png)
 
-**月$8.3で、日本から60〜85ms。** この価格でこの速さは、トップクラスと言っていいと思います。
+**月$8.3で、日本から60〜85ms。** Googleが「速い」とする基準はTTFB 800ms以下なので、その10分の1です。
 
 成長しても上がるのはプランの値段だけで、3年で1万人まで伸びて月$29。速さはそのままです。
 
