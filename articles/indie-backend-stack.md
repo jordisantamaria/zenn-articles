@@ -657,6 +657,7 @@ export async function notifyAdmin({ kind, subject, details }: AdminAlertInput) {
 | 待たされている人がいる | Axiom | 15分で1.5秒超が2件以上 | 刺さっているルートを特定する |
 | DBが遅い | Axiom | `/api/health` のp95が10分で150ms超 | 接続とインスタンスを見る |
 | 全体が遅くなった | Axiom | 実ルートの中央値が12時間で250ms超 | 性能を見直す（急がなくていい） |
+| DBの改善提案 | PlanetScale | 週1回のレポート | 提案された冗長インデックスを消す |
 | 人間待ちが溜まった | アプリ | 問い合わせ・報告・承認待ちが入った瞬間 | 管理画面を開く |
 
 ## 7. 全部を、AIから触れる状態にしておく
