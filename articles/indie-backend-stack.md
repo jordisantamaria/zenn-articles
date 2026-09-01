@@ -781,7 +781,7 @@ Axiom側はAPL（Axiom Processing Language）のクエリ、データセット�
 
 結果は、この画像にまとまっています。
 
-![アプリとランディングがFly.ioのAPIへ。APIとPlanetScaleは同じ東京リージョンで6ms、日本からの往復は60〜85ms。ログはAxiom、製品分析とエラーはPostHog、死活監視はBetter Stack、そのすべてがメールに集まる構成図](/images/backend-architecture.png)
+![アプリとランディングがFly.ioのAPIへ。APIとPlanetScaleは同じ東京リージョンで6ms、日本からの往復は60〜85ms。ログはAxiom、製品分析とエラーはPostHog、死活監視はBetter Stack、PlanetScaleは週次レポート、そのすべてがメールに集まる構成図](/images/backend-architecture.png)
 
 ---
 
