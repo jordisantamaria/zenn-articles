@@ -1,281 +1,395 @@
 ---
-title: "TODO: アプリのAPIは引っ越せない（仮題 — 候補は notes/landing-off-the-server.md）"
-emoji: "🪧"
+title: "ランディングページの表示速度を1.2秒→0.3秒にしました。やったことを全部書きます"
+emoji: "⚡"
 type: "tech"
-topics: ["cloudflare", "nextjs", "個人開発", "seo", "パフォーマンス"]
-published: false
+topics: ["ai", "react", "nextjs", "個人開発", "フロントエンド"]
+published: true
+published_at: 2026-09-04 21:00
 ---
 
-<!-- ⚠️ ESQUELETO — NO PUBLICAR TAL CUAL.
-     Zenn IMPRIME los comentarios HTML: borrar este bloque y todas las líneas
-     «> ES:» antes de poner published: true.
-     Datos medidos y fuentes: notes/landing-off-the-server.md
+**1.2秒かかっていたランディングページが、0.3秒で開くようになりました。** ホスティングは月0円、Lighthouse 100。サーバーは1台も使っていません。
 
-     ARTÍCULO 2 DE 2. Este es «qué NO debe depender del servidor».
-     El otro —dónde corre el servidor— es articles/serverless-to-server.md.
-     Publicar éste DESPUÉS y con unos días de separación: son dos ideas y merecen
-     dos lecturas.
+先週、[個人開発のバックエンドをVercelからFly.ioへ移した話](https://zenn.dev/jordi/articles/indie-backend-stack)を書きました。APIは1.9秒から60〜85msになりました。**でも、そのAPIを叩くより前に、人はランディングページを開きます。** そこが遅ければ、バックエンドが何msだろうと、誰も知らないまま帰ります。
 
-     TÍTULO — el lector objetivo tiene una landing lenta o mal indexada y busca a
-     quién preguntar. Por el problema, y por el SUYO, no por la herramienta:
-       a) アプリのAPIは引っ越せない ― 1つのドメイン、2つのオリジン  ← la restricción
-       b) ランディングページが、サーバーと一緒に落ちる  ← el problema
-       c) Googlebotに5xxを見せ続けると、インデックスから消える  ← la consecuencia
-     Evitar «Cloudflare Pagesにデプロイした話»: describe la herramienta, y de eso hay
-     cientos. Lo que no está escrito es (a). -->
+![Lighthouse（デスクトップ）の計測結果。Performance 100、Accessibility 95、Best Practices 100、SEO 100。First Contentful Paint 0.3秒、Largest Contentful Paint 0.7秒、Speed Index 0.4秒、Total Blocking Time 0ms、Cumulative Layout Shift 0](/images/landing-lighthouse-100.png)
+*本番の `oshisuki.com`、Lighthouse デスクトップ*
 
-> ES: **Por qué esto no es «desplegué Next en Cloudflare Pages» más.**
-> Tutoriales de eso hay cientos. Lo que no está escrito es la restricción:
->
-> **La API no se podía mover de dominio.** La app publicada en App Store y Google
-> Play lleva `https://oshisuki.com` clavado en el binario y no se puede actualizar
-> hacia atrás. Quien tenga la versión de julio seguirá pidiendo ahí para siempre.
->
-> Así que no es «mover la web a otro sitio». Es **partir un dominio entre dos
-> orígenes**, y eso solo se decide en el borde. Ése es el artículo.
+### この記事に書いてあること
 
-## なぜ速くするのか — 「速い＝いいこと」では記事にならない
+やったことは4つで、どれもそのまま他のサイトに持っていけます。
 
-> ES: **La sección que decide si el artículo vale algo.** Sin ella esto es un tutorial
-> más de optimización; con ella es una decisión de negocio explicada. Va ARRIBA, antes
-> de cualquier detalle técnico.
->
-> La landing de un producto no existe para ser bonita: existe para convertir una visita
-> en una instalación. Tres motivos concretos, y ninguno es «me gusta que vaya rápido»:
->
-> **1. SEO — es de donde tiene que venir el crecimiento.**
-> El LCP es factor de ranking directo (Core Web Vitals). Y hay algo peor que rankear
-> mal: Googlebot que se encuentra 5xx sostenidos **recorta el presupuesto de rastreo**
-> y acaba desindexando. Una landing que comparte servidor con la API se cae cuando se
-> cae la API — y el rastreador no vuelve a intentarlo como lo haría una persona.
->
-> **2. CRO — cada segundo se lleva instalaciones.**
-> Toda la landing existe para un solo evento: pulsar el botón de la tienda. Quien llega
-> y espera tres segundos a que aparezca el hero no llega a ese botón. No hay forma de
-> medir cuántos se pierden —los que se van no dejan rastro—, así que **hay que decirlo
-> como lo que es: un coste invisible.** No inventar un porcentaje.
->
-> **3. La campaña — el tráfico de un post se quema una sola vez.**
-> Éste es el que más duele y el que menos se escribe. El tráfico no viene de Google
-> todavía: viene de X, de posts que cuestan una tarde escribir. Ese tráfico llega
-> **concentrado en veinte minutos** y no se repite. Si la landing tarda en abrir
-> justo entonces, el trabajo del post se ha ido — y no hay reintento.
->
-> ES: La frase que resume las tres y que puede abrir el artículo:
-> **ランディングページが遅いのは、UXの問題じゃなくて集客の問題。**
+- **アプリと同じサーバーから出して、静的ファイルにする** — ホスティングが0円になり、速さがトラフィックと無関係になる
+- **日本語フォントを切り詰める** — ページの重さの9割がフォントでした
+- **画像をビルドの前に最適化する** — `output: "export"` では `next/image` が効きません
+- **JSを初期バンドルから外す** — 1つのライブラリがJS全体の3割を占めていました
 
-## なぜサーバーから出したのか
+そして**うまくいかなかったこと**も、同じ分量で書きます。転送量を半分にしたのにスコアが下がった話、Accessibilityの95を上げなかった理由、そしてLighthouseのスコアが93〜100で揺れる理由。
 
-> ES: Aquí ya sí el motivo técnico, que ahora se lee como consecuencia de lo de arriba
-> y no como capricho: un servidor de aplicación se cae —se despliega mal, se queda sin
-> memoria, la base no responde—. Eso es asumible para la app: el usuario reintenta.
->
-> No lo es para el contenido que sostiene los tres puntos anteriores. Ahí quien pasa
-> mientras está caído es un rastreador que no reintenta igual, o alguien que venía de
-> un post y no va a volver.
+## 1. ランディングは、まず静的にする
 
-## 分ける前に気づいたこと：ルートレイアウトの動的API
+> **効果：42%の確率で起きていた約1.9秒のコールドスタートが、ゼロになりました。**
 
-> ES: Sección corta y muy rentable — es diagnóstico gratis que casi nadie hace.
->
-> Antes de separar nada, la landing YA se renderizaba en el servidor en cada visita.
-> La causa estaba en el layout raíz: `getLocale()` acaba llamando a `cookies()`. **Una
-> API dinámica en el layout raíz vuelve dinámico todo lo que cuelga de él** — hasta
-> la página de política de privacidad, que es texto que no cambia nunca.
->
-> Se arregla bajando el provider de i18n a los grupos de rutas que traducen algo.
->
-> La lección concreta: mirar la salida de `next build` y buscar `ƒ` donde debería
-> haber `○`. Antes de cambiar de infraestructura, comprobar que no te estás
-> renderizando el sitio entero por una cookie.
+### そもそも「静的」とは何か
 
-## 1つのドメイン、2つのオリジン
+HTMLの作り方は、突き詰めると2つしかありません。**誰がいつ組み立てるか**の違いです。
 
-> ES: El corazón. La tabla:
->
-> | | どこ | 落ちたら |
-> |---|---|---|
-> | ランディング・規約類 | Cloudflare Pages | Cloudflareが落ちたとき |
-> | API・メールの着地ページ | Fly.io | Flyが落ちたとき |
->
-> El reparto lo hace un Worker en la ruta `oshisuki.com/*`. La propiedad que lo hace
-> seguro: **lo que va a Fly se reenvía con `fetch(request)` tal cual** — mismo host,
-> mismas cabeceras, mismo cuerpo. Para la app publicada no cambia nada: ni el `Host`
-> que lee el middleware, ni el dominio de las cookies de better-auth, ni el streaming.
->
-> ES: Y el detalle de diseño que merece explicarse, porque es al revés de lo que se
-> espera: en el middleware de la app se enumera **lo público**; en el Worker se
-> enumera **lo de Fly**, y el resto va a Pages. El default apunta al lado que crece —
-> la página nueva del blog se publica cada semana, la ruta nueva de la app casi nunca.
+| | いつHTMLを作るか | 100人が来たら |
+|---|---|---|
+| **動的**（サーバーレンダリング） | アクセスが来るたび、その場で | サーバーが**100回**組み立てる |
+| **静的** | `next build` を走らせた瞬間に、1回だけ | 同じファイルを**100回配るだけ** |
 
-## `/_next/` は両方が要求する
+配るだけの仕事に、サーバーは要りません。**完成済みのファイルを世界中のCDNに置いておいて、いちばん近い拠点から返す。** これが速さの正体です。何も計算していないので、遅くなりようがない。1人が来ても1万人が来ても、ファイルを返すだけなので**混雑も起きません。**
 
-> ES: **El detalle técnico que no está escrito en ningún sitio y que rompe el
-> despliegue si no lo ves.**
->
-> Los dos Next sirven sus assets bajo el mismo prefijo. Los nombres llevan hash, así
-> que las rutas concretas no colisionan nunca; **lo que colisiona es el prefijo**.
->
->   - `/_next/*` → Pages: `/reset-password` (que sirve Fly) se queda sin estilos.
->   - `/_next/*` → Fly: la landing entera se queda sin JS ni CSS. Catastrófico.
->
-> Se resuelve preguntando: Pages primero y, si devuelve 404, Fly. La petición de más
-> solo ocurre al abrir esas dos páginas. La alternativa (`assetPrefix`) obliga a CORS
-> y a que cada entorno lo configure bien.
+### よくある誤解：静的にしても、APIは普通に呼べます
 
-## `images.unoptimized` は「最適化しない」ではない
+「静的にする」と言うと、**問い合わせフォームもメール送信も決済もできなくなる**と思われがちです。おそらくここが、静的化がいちばん敬遠される理由です。
 
-> ES: `output: "export"` lo obliga: no hay servidor que redimensione al vuelo, así
-> que `next/image` sirve el fichero tal cual. La optimización no desaparece — **se
-> mueve antes del build**, a un script que se corre a mano y cuyo resultado se
-> commitea.
->
-> Ventajas de que no vaya en el build: el despliegue no depende de sharp, dos
-> ejecuciones no dan bytes distintos, y el peso de cada imagen se ve en el diff de la
-> PR en vez de descubrirse en producción.
->
-> Medido: los dos personajes del hero eran PNG de 997 px pintados a 320 CSS px.
-> **1,7 MB → 104 KB.**
+でも静的なのは**HTMLを配る側だけ**です。ブラウザに届いたあとのJavaScriptには何の制限もかかりません。`fetch()` でAPIを叩けば、フォーム送信もメールも決済もログインも普通に動きます。バックエンドは別のホストにいてもいいし、同じドメインの `/api/` に置いたままでも構いません。
 
-## 送信済みのメールは書き換えられない
+> 静的化で変わるのは、**HTMLを誰がいつ組み立てるか**だけです。**そのページに何ができるかは、変わりません。**
 
-> ES: **El mejor detalle del artículo. Solo aparece haciéndolo.**
->
-> El correo de bienvenida enlaza `oshisuki.com/chibi-wota.png`. Esos correos están en
-> bandejas de gente real. Dejar los assets solo en WebP —que Outlook no pinta— o
-> cambiarles el nombre habría vaciado de imágenes cada bienvenida ya enviada.
->
-> Solución: los PNG siguen con su nombre de siempre, recomprimidos al tamaño al que
-> el correo los pinta. La web usa los WebP.
->
-> Generalizable en una línea: **メールから参照しているアセットは公開APIと同じ。
-> リネームできない。**
+サーバーレンダリングが本当に要るのは、**リクエストごとに中身が変わるページ**だけです。ログイン後のダッシュボード、cookieで出し分けるページ、URLごとにDBを引くページ。**ランディングはそのどれでもありません。**
 
-## ついでに直った（そして直さないと危なかった）こと
+### だから、ランディングは静的にできるなら静的にしたほうがいい
 
-> ES: Dos cosas que salieron al activar el proxy, y conviene separarlas porque una es
-> seguridad y la otra es un efecto secundario:
->
-> 1. **SSL/TLSが`Full`だった。** Cifra el tramo Cloudflare↔origen pero **no valida el
->    certificado**: acepta el de cualquiera que se ponga en medio. Con el DNS en gris
->    no aplicaba a nada; en cuanto metes a Cloudflare en el camino, sí. `Full (strict)`.
-> 2. **El TLS pasó a terminar en Tokio** (`cf-ray: …-NRT`) en vez de Singapur. Eso no
->    se buscaba y **también afecta a la API**, que no tiene nada que ver con Pages.
->    Decirlo separado o el lector atribuye a Pages algo que es del proxy.
+推しスキも最初は、ランディングもバックエンドも同じNext.jsアプリでした。**とても合理的な選択**で、いちばん多い構成でもあります。リポジトリが1つ、デプロイが1つ、環境変数が1つ。最初にこれを選ばない理由はありません。**問題が出るのは、ユーザーがついてからです。**
 
-## 結果
+同居させていると4つのことが起きて、**静的にすると4つとも消えます。**
 
-> ES: La tabla:
->
-> | | 前 | 後 |
-> |---|---|---|
-> | `/` | 371 ms | **111 ms** |
-> | `/faq` | ~380 ms | **85 ms** |
-> | ヒーローの画像 | 1.7 MB | **104 KB** |
->
-> Y la honestidad que hace falta: **no hay números de SEO todavía.** El sitio es
-> pequeño, CrUX no tiene volumen suficiente para dar datos de campo, y decir «mejoró
-> el ranking» sería inventarlo. Lo que sí se puede afirmar es lo estructural: la
-> landing ya no puede caerse con el servidor de aplicación.
+| アプリと同居していると | 静的にすると |
+|---|---|
+| サーバーが落ちるとランディングも落ちる。しかも**ユーザーが障害を確かめに来る先がそこ**なので、知らせる手段が障害と一緒に消える | CDNが配るだけなので、アプリが落ちても生きている。**お知らせが書ける** |
+| `/login` が、SNSにもストアにも名刺にも載るドメインにぶら下がる | 公開ホストからは404。管理コンソールは別のホストへ |
+| APIが忙しい時間帯はランディングも遅くなる。そして忙しいのは、たいてい何かを告知した直後 | **速さがトラフィックと無関係。** 告知の直後でも同じ速さで開く |
+| キャンペーンでランディングに来た負荷が、アプリを使っている既存ユーザーに届く | 別々なので、届かない |
 
-## 壊れたもの：CIが、なくなったページを3分待っていた
+### いちばん大きかったのは、コールドスタートが消えたこと
 
-> ES: Sección de cierre técnico. Es corta y se lee sola porque el mensaje de error
-> miente:
->
-> ```
-> [WebServer] ✓ Ready in 142ms
-> Error: Timed out waiting 180000ms from config.webServer.
-> ```
->
-> Playwright sondea una URL hasta que responda <400 antes de arrancar los tests, y esa
-> URL era `/`. Al mudarse la landing, la app dejó de tener raíz: 404 para siempre. El
-> mensaje dice «el servidor no levanta» justo debajo de un log que dice que levantó en
-> 142 ms.
->
-> Y el arreglo obvio también era trampa: `/api/health` parece la elección correcta
-> —existe justo para decir «estoy vivo»— pero hace `SELECT 1`, así que devuelve 503
-> cuando la base duerme, y Neon duerme por inactividad. Habría cambiado un timeout de
-> tres minutos por el mismo timeout de tres minutos. Va a `/login`.
->
-> ES: Y el hallazgo colateral, que da una frase memorable: al tocar el workflow salió
-> un paso que filtraba por un paquete inexistente. **pnpm sale con 0 cuando el filtro
-> no encuentra nada**, así que llevaba tiempo en verde sin ejecutar un solo test.
-> 何も検証しないチェックは、無いより悪い。カバレッジがあるように見えるから。
+秒数でいちばん効いたのは、この表のどれでもありませんでした。**コールドスタートです。**
 
-## 直らなかったこと、そしてなぜ直らないのか
+推しスキをリリースした当時、ランディングはVercelのサーバーレスで動いていました。しかも後述する `ƒ` のせいで**アクセスのたびに関数が起動する**状態です。[前回の記事](https://zenn.dev/jordi/articles/indie-backend-stack)で測ったコールドスタート率は **42.3%**。同じ時期、コールドで叩いたエンドポイントは**約1.9秒**かかっていました。
 
-> ES: **La sección que más autoridad da del artículo, y la que casi nadie escribe.**
-> Demuestra que se entiende el sistema entero en vez de aplicar recetas. Y es honesta:
-> el número se quedó donde se quedó.
->
-> Tras sacar la landing del servidor, recortar la tipografía y arreglar el LCP, el
-> **Performance de móvil no se movió de 74**. Se probaron tres cosas por separado,
-> midiendo cada una contra la misma base en el mismo servidor:
->
-> | | Score | LCP |
-> |---|---|---|
-> | 何もしない | 74 | 9.5 s |
-> | + `priority` | 74 | 9.8 s |
-> | + PostHogをidleに | 74 | 9.8 s |
-> | + 動的import | **74** | **8.6 s** |
->
-> El motivo, y es aritmética: Lighthouse móvil simula **1,6 Mbps** y la página pesa
-> **1,6 MB**. Son **8,2 segundos solo de descarga**. Con ese suelo, ningún orden de
-> carga cambia la nota — solo quitar bytes la cambia.
->
-> | | 重さ | % |
-> |---|---|---|
-> | **JavaScript** | **776 KB** | **46%** |
-> | フォント | 440 KB | 26% |
-> | 画像 | 228 KB | 14% |
->
-> ES: La conclusión transferible, que es lo que se lleva el lector:
+そしてトラフィックの形が最悪でした。**Xに投稿した直後の20分に集中して、あとは1日中まばら。** インスタンスが温まらないので、**キャンペーンで来てくれた人ほどコールドを引きます。**
+
+静的にすると、この確率はゼロになります。**起動するものが何もない**からです。
+
+そのうえ**ホスティングが0円になります。** Cloudflare Pagesの静的ファイル配信は帯域無制限で無料です。
+
+### 設定そのものは2行
+
+Next.jsで静的にするスイッチは `output: "export"` です。これを書くと `next build` がサーバー用のコードを出さなくなり、**HTMLとJSとCSSのファイル一式だけ**を `out/` に吐きます。あとはそのフォルダをCloudflare Pagesに置くだけです。
+
+```ts:apps/web/next.config.ts
+const nextConfig: NextConfig = {
+	// サーバーを持たない。ビルド時に完成したHTMLを出すだけにする
+	output: "export",
+	// 画像最適化はNext.jsの「動いているサーバー」の機能なので、
+	// サーバーがない以上これも切れる。代わりの手当ては3章で
+	images: { unoptimized: true },
+};
+```
+
+推しスキのランディングにはフォームすらありませんでした。問い合わせはアプリの中にあります。**失ったものはゼロです。**
+
+### `output: "export"` が通らないとき
+
+有効にすると、ビルドが落ちることがあります。**そのページが静的だと思っていたけれど、実は違ったという意味です。**
+
+原因はたいていルートレイアウトです。推しスキの場合は `getLocale()` が内部で `cookies()` を呼んでいて、**プライバシーポリシーまで、アクセスのたびにサーバーでレンダリングされていました。** 一言も変わらないテキストがです。
+
+> **ルートレイアウトで動的APIを1つ呼ぶと、その下にぶら下がる全ページが動的になります。**
+
+i18nのプロバイダを、実際に翻訳しているルートグループまで下ろして解決しました。マーケティングのグループは日本語手書きなので、そもそもi18nを使っていません。
+
+**`next build` の出力で、`○` のはずのところに `ƒ` が付いていないか見る。** 30秒で終わって、たいてい何か見つかります。
+
+## 2. 日本語フォントで、241個のpreloadが入っていた
+
+> **効果：LCP 39.8秒 → 9.6秒。転送量 5.82 MB → 1.62 MB。**
+
+静的にしたあとは、ページを軽くする番でした。**最大の犯人はフォントです。**
+
+きっかけは、数字の組み合わせがおかしかったことです。**FCPが0.8秒なのに、LCPが7.5秒。** 最初の描画が速くて、最大の描画が10倍かかる。これはサーバーの問題ではありえません。
+
+`next/font` は日本語フォントを、unicode範囲で細かく分割します。
+
+| ファミリー | 生成された `@font-face` |
+|---|---|
+| Zen Maru Gothic | **366** |
+| Noto Sans JP | **373** |
+| Archivo + Figtree（欧文） | 24 |
+
+そして `preload` は**デフォルトで有効**です。Nextはそのほぼ全部に `<link rel="preload">` を入れます。本番のHTMLで数えた結果:
+
+> **241個のpreload、4.2 MB。ページ全体の重さの約90%が、1ピクセルも描く前に要求されていました。**
+
+Noto Sans JPには以前の修正で `preload: false` が付いていました。**Zen Maru Gothicには付いていませんでした。見出しのフォントです。**
+
+### どうやって見つけたか
+
+1. **噛み合わない組み合わせに気づく。** FCP 0.8秒 / LCP 7.5秒
+2. **Lighthouseの `network-requests` を `resourceType` で集計する。** JSONにPythonを1行。Font: 242リクエスト / 4.2 MB
+3. **HTMLのpreloadを数える。** `grep -o 'as="font"' index.html | wc -l`
+4. **各preloadを、ファミリーごとのCSSと突き合わせる。** 241個中239個がZen Maru Gothic
+
+**4番目が、「フォントが重い」を「このフォントの、このフラグ」に変えます。** ここまでやらないと直す場所が決まりません。
+
+### 1回目の修正：`preload: false` — スコアは下がりました
+
+**ここからの数字は、Lighthouseの「モバイル」プリセットです。** 秒数が桁違いに見えるのはそのせいで、1.6 Mbpsの回線をシミュレートしているからです。実際のロードではありません（5章で詳しく書きます）。**フォントの差はモバイルでしか見えない**ので、診断はこちらでやりました。
+
+同じサーバーで、2つのビルドを測った結果です。
+
+| Lighthouse モバイル | 前 | 後 |
+|---|---|---|
+| リクエスト数 | 267 | 70 |
+| 転送量 | 5.82 MB | 2.31 MB |
+| フォント | 242 / 4.1 MB | 45 / 591 KB |
+| LCP（シミュレート） | 39.8 s | 14.2 s |
+| **スコア** | **62** | **60** |
+
+**転送量が半分以下になって、スコアは2点下がりました。**
+
+本丸が別のところにあったからです。**740個の `@font-face` を宣言している544 KBのCSS**が、クリティカルパスに残ったままレンダリングをブロックしていました。preloadを消しても、カタログそのものは消えません。
+
+**フラグ1つでは直りませんでした。**
+
+### 2回目の修正：サブセット化
+
+ここで、Google Fontsとは逆のことができると気づきます。**このサイトの文章は、ビルド時に全部わかっている**からです。コピーは手書きで、DBから来る文字はありません。
+
+だったら、**使う文字だけを入れた1ファイル**を作ればいい。
+
+- サイト全体で使われている**ユニークな文字は930個**（本文の738文字＋保険としてかな全部）。フォントが持つ約20,000字の **3.7%**
+- **1ウェイトあたり 3.6 MB → 約140 KB**
+- **フォントCSS: 588 KB → 45 KB。`@font-face`: 764 → 15**
+- ついでに2ファミリーが丸ごと不要になりました。Archivo（使用箇所ゼロ）と、Zen Maruで始まるフォールバックの最後尾にいたNoto Sans JP
+
+| Lighthouse モバイル | 元 | サブセット |
+|---|---|---|
+| **スコア** | 62 | **74** |
+| FCP | 5.3 s | **1.8 s** |
+| LCP | 39.8 s | **9.6 s** |
+| リクエスト数 | 267 | **26** |
+| 転送量 | 5.82 MB | **1.62 MB** |
+
+スクリーンショットを比較して、知覚できる差があったピクセルは **0.03%** でした。
+
+ツールは `subset-font`（harfbuzzのWASM版、ネイティブ依存なし）。スクリプトは手で走らせて、**出力をコミットします。**
+
+### この手が使えない場所
+
+**サブセット化が成立するのは、ビルド時に文字がわかる場合だけです。** 入っていない文字はシステムフォントで描かれます。
+
+- ランディングとブログ: 問題なし。文章はビルドを通る
+- **アプリと管理コンソール: 不可。** 推しの名前も現場のタイトルもDBから来ます。こちらはGoogleのサブセット分割が正解のままです
+
+そしてスクリプトは、**かなを全部（180グリフ、数KB）無条件で入れています。** 今日のコピーに無くても入れる。この仕組みでいちばん静かな事故は、**誰かが新しい言葉をひらがなで書いて、そこだけ別のフォントで表示されるのに誰も気づかない**ことなので。
+
+### 副産物：Googlebotがwoff2を1つずつ取りに来ていた
+
+ビルド成果物は611ファイル、18 MB。うち**13 MBが495個の `.woff2`** でした。
+
+そしてSearch Consoleを見たら、**71個の `.woff2` がインデックスのレポートに載っていました。** クローラーがフォントの断片を、ページとして1つずつ取りに来ていたということです。
+
+```
+Disallow: /_next/static/media/*.woff2$
+```
+
+## 3. `images.unoptimized` は「最適化しない」という意味ではない
+
+> **効果：ヒーローの画像 1.7 MB → 104 KB。**
+
+`output: "export"` は `images.unoptimized` を強制します。Next.jsの画像最適化は**動いているサービス**なので、サーバーがなければ存在できません。
+
+結果として `next/image` はファイルをそのまま配ります。だから最適化は消えるのではなく、**ビルドより前へ移動します。**
+
+実測した被害はこれでした。**ヒーローの2人のちびキャラは997pxのPNGで、320 CSS pxに描かれていました。1.7 MBを送って、実際に見えるのは55 KB分のピクセルです。**
+
+`sharp` のスクリプトで、実際に描画される幅の2倍（Retina用）に縮めてWebPへ:
+
+> **1.7 MB → 104 KB**
+
+1つだけ落とし穴があります。**メールから参照している画像は、WebP化もリネームもできません。** ウェルカムメールが `chibi-wota.png` を指していて、そのメールは実在する人の受信箱の中にあるからです。Outlookは表示できないので、WebPに寄せた瞬間に**送信済みの全メールから画像が消えます。** PNGは同じ名前のまま残して再圧縮し、Web側だけWebPを使っています。
+
+> **メールから参照しているアセットは、公開APIと同じです。リネームできません。**
+
+このスクリプトも**ビルドに入れず、手で走らせて出力をコミットします。** 理由は3つあります。
+
+- デプロイが `sharp` に依存しない
+- 2回実行して違うバイト列が出ない
+- **各画像の重さがPRのdiffに出る。** 本番で気づくのではなく、レビューで気づく
+
+## 4. サードパーティのJSを、初期バンドルから追い出す
+
+> **効果：JS 776 KB → 258 KB。LCP 9.8秒 → 8.6秒。**
+
+フォントと画像を削ったあと、残っていた重りはJavaScriptでした。**776 KBのうち231 KBが、たった1つのライブラリ**——PostHogのSDKです。ページが落としてくる全バイトの14%を、分析ツールが占めていました。
+
+やったことは3つで、効き方が全部ちがいます。
+
+### ① LCPの画像が `loading="lazy"` だった
+
+`next/image` は**デフォルトが遅延読み込み**です。「いちばん大事な画像はこれだ」と明示しない限り、**ファーストビューの主役をわざと後回しにします。**
+
+そして厄介なのは、**LCPの要素がモバイルとデスクトップで違う**ことでした。うちの場合、モバイルはモックアップ側のキャラ、デスクトップはもう一方。`priority` は両方に付ける必要があります。折りたたみより下の3枚は、遅延のままで正解です。
+
+### ② 分析ツールがハイドレーションと同時に起動していた
+
+PostHogは1本のスクリプトではありません。**別ドメインの4本**です。モバイルで測ると、**接続を開くだけで1本あたり約1秒。** 同じページの自前フォントは10 msで届いています。
+
+`requestIdleCallback` に逃がしました。上限3秒、そして `setTimeout` の保険つきです——**Safariは `requestIdleCallback` を実装していません。**
+
+### ③ ②だけでは、何も変わりませんでした
+
+ここが今回いちばん腹に落ちたところです。**起動を遅らせても、ダウンロードは遅れません。**
+
+`import` が静的なままだと、231 KBは初期バンドルに入ったまま落ちてきます。初期化を後回しにしたところで、**バイトはもう来ています。**
+
+`await import()` に変えて、はじめて数字が動きました。
+
+| | LCP（モバイル、シミュレート） |
+|---|---|
+| そのまま | 9.8 s |
+| 動的 `import()` に変更 | **8.6 s** |
+
+本番のJSは **776 KB → 258 KB** になりました。
+
+### おまけ：存在しないアンケートのために33 KB
+
+PostHogのSDKは本体とは別に4つのモジュールを積んでいて、**どれを積むかを決めるのはリモート設定**です。だから `posthog.init()` のコードを読んでも、そこに書いていない限り気づけません。
+
+いちばん重いのはアンケート機能で、**33 KBとリクエスト1本**。ランディングにアンケートは1つもありません。`disable_surveys` で落としました。
+
+残り3つは残しています。エラー捕捉は障害検知そのもので、`web-vitals` は**実ユーザーのCore Web Vitals**——Googleがランキングに使っている唯一の数字——を送っているからです。
+
+## 5. LCPは4つあって、全部正しい
+
+同じページの同じLCPで、こうなります。
+
+| 出どころ | 値 | 何を測っているか |
+|---|---|---|
+| Chromeのトレース | **492 ms** | そのロードで実際に起きたこと |
+| DevTools Live Metrics | **0.71 s** | 実際のロード、スロットリングなし |
+| Lighthouse（モバイル） | **6〜9 s** | 低速4Gの**シミュレーション** |
+| CrUX | **データなし** | 実ユーザー。**Googleが見ているのはこれ** |
+
+**4つとも正しくて、測っているものが違います。** ここを分けずに話すと、会話が延々すれ違います。そして推しスキの規模ではCrUXが埋まらないので、**Googleが見ている数字は、まだ存在しません。**
+
+### スコアが93〜100で揺れる理由
+
+10回測った結果です。
+
+| TTFB | スコア |
+|---|---|
+| 374 ms（エッジのキャッシュが冷えていた1回目） | **93** |
+| 95〜148 ms（以降） | **96〜100** |
+
+**差はサーバーではなく、Cloudflareのエッジにキャッシュが載っているかどうかだけです。**
+
+そして**Lighthouseは常にコールドロードを測ります。** 実際の訪問者の2回目以降は、この数字のどこにも出てきません。
+
+## 6. 直さなかった2つと、その理由
+
+### Accessibility 95 — ブランドの色を優先しました
+
+減点しているのは1項目、`color-contrast` です。ブランドのピンク（`#F5157E`）が背景に使われている箇所が引っかかります。
+
+**一度、AAを満たす濃さに変えて試しました。** 数値は通りました。でもその色はカプセル型のバッジの**背景**でもあって、濃くするとピンクに見えなくなります。**えんじ色になります。**
+
+ブランドの色が持っている仕事のほうが5点より大きいと判断して、戻しました。
+
+**色トークンは「どのプロパティで使われているか」を見ずに変えられません。** 文字色として正しい変更が、背景としては別物になります。
+
+### モバイルの68〜73 — 算数で決まっているので
+
+デスクトップが100でも、**モバイルのプリセットは68〜73です。** そしてこれは読み込み順の問題ではありません。
+
+Lighthouseのモバイルは**1.6 Mbps**をシミュレートします。ページは**0.96 MB**。**ダウンロードだけで約4.8秒**です。この床がある限り、順番を入れ替えてもスコアは動きません。
+
+4章の3つは、**どれもモバイルのスコアを1点も動かしませんでした。** LCPは9.8秒から8.6秒に下がったのに、74のままです。
+
+では、そのバイトをどこまで削れるのか。**残っている258 KBのJSは、ほぼReactとNext.jsのランタイムです。** ここから先を削るには、フレームワークを捨てて素のHTMLで書き直すしかありません。
+
+やれば数字は上がります。でもそれは、**ブログもランディングも素のHTMLで運用する**ということです。コンポーネントの共有も、型も、ビルドの仕組みも全部やり直し。**引き換えに手に入るのは、実際のユーザーには見えないスコアの数点。**
+
+**割に合わないので、やっていません。**
+
 > **スコアが動かないときは、順番ではなくバイト数を見る。**
->
-> Y el matiz que separa medir de creer: el LCP **real** del trace es de **492 ms**.
-> Los 8,6 s son la simulación de una red muy lenta. Los dos números son correctos y
-> miden cosas distintas — explicar eso vale más para el lector que subir a 90.
 
-## 試して、外れたこと
+それでも3つとも**残しています。** Lighthouseの数字には出ませんが、実ネットワークでは効くからです。**正しい修正が、スコアに出ないことがあります。**
 
-> ES: **Cuatro intentos fallidos, todos medidos.** Van juntos porque cada uno enseña
-> algo distinto sobre diagnosticar, y porque contar solo los aciertos hace que parezca
-> suerte.
->
-> **1. `priority` en la imagen del LCP.** Es objetivamente correcto —`next/image` la
-> marcaba `loading="lazy"`— pero **no movió el número**: su preload compite con el CSS
-> y las fuentes, y se compensa. Se queda igualmente, porque en una red real sí ayuda.
-> Lección: *un arreglo puede ser correcto y no salir en el marcador.*
->
-> **2. `aria-hidden` para eximir del contraste.** Dos textos de 9 px dentro de una
-> ilustración: parecía que marcándolos como decorativos quedaban fuera del criterio.
-> **axe los siguió midiendo, y con razón**: `aria-hidden` los saca del lector de
-> pantalla, pero **el texto sigue viéndose**, y el criterio de contraste existe para
-> quien tiene poca visión, no para quien no ve nada. La exención de WCAG es para texto
-> dentro de una imagen de píxeles.
->
-> **3. `/api/health` como sonda de Playwright.** Al mudarse la landing, el CI se quedó
-> esperando tres minutos a `/`, que ya no existía. El arreglo evidente era apuntar a
-> `/api/health` —el endpoint que existe justo para decir «estoy vivo»— y era una
-> trampa: hace `SELECT 1`, así que devuelve 503 cuando la base duerme. Habría cambiado
-> un timeout de tres minutos por el mismo timeout de tres minutos.
->
-> **4. Oscurecer el color de marca para cumplir contraste.** Cumplía. Pero ese color
-> también es FONDO de una cápsula, y oscurecido deja de leerse como rosa: se lee
-> granate. Se revirtió. Lección: *un token de color no se cambia sin mirar en qué
-> propiedad se usa*.
+## 7. 個人でこの速さが出せたのは、AIのおかげです
+
+正直に書くと、**この記事の作業を全部手でやる気にはなりません。**
+
+難しいからではありません。**面倒だからです。** 並べるとこういう作業でした。
+
+- LighthouseのJSONを `resourceType` で集計する
+- HTMLの `<link rel="preload">` を数えて、241個を**ファミリーごとのCSSと1件ずつ突き合わせる**
+- サイト全部のソースから、実際に使われている文字を抽出する（930字でした）
+- ウェイトごとにサブセットを作り、**前後のスクリーンショットをピクセル単位で比べる**
+- ビルドを2つ用意して、同じサーバーで交互に測る
+
+ひとつひとつは30分の寄り道です。でも**機能を出しながらやる寄り道としては、どれも高すぎます。** だから普通は「フォント重いよな」で終わって、そのまま何ヶ月も経ちます。
+
+AIが変えたのは知識ではなく、**この寄り道の値段**です。集計スクリプトも、突き合わせも、サブセット化のスクリプトも、書かせて、使って、捨てられます。**測るコストが下がると、測る回数が増えます。**
+
+そして今回いちばん効いた発見——**preloadを241個消したのに、スコアが2点下がった**——は、消したあとにもう一度測ったから見つかりました。1回しか測らなければ、「軽くなったはず」で終わっていたはずです。
+
+### ただし、AIは聞かなかったことには答えません
+
+`FCPが0.8秒なのに、LCPが7.5秒`。この噛み合わなさに気づいたのは人間の側です。**「なんかおかしい」は、まだこちらの仕事です。**
+
+そこから先——何を集計するか、どう突き合わせるか、何と比べるか——は全部任せられます。だから個人開発でも、**大きなチームと同じ精度で測れる**ようになりました。差がつくのは、測ろうと思うかどうかだけです。
+
+## 付録：なぜ、ランディングの速さが大事なのか
+
+速さが効くのは「気持ちいいから」ではありません。理由は3つで、どれも集客です。
+
+- **SEO。** LCPはランキング要因です。それ以上に、**Googlebotは5xxが続くとクロール頻度を落とし、最終的にインデックスから外します。** クローラーは人間と違って「あとでもう一回」を同じようにはやってくれません
+- **CRO。** ランディングにあるボタンは実質1つ、ストアへ行くボタンです。ヒーローが出るまで3秒待った人は、そこまで到達しません。**何人失ったかは測れません。** 帰った人は痕跡を残さないので
+- **キャンペーン。** いまの流入はGoogleではなくXから来ます。1本の投稿に半日かけて、流入は**20分に集中して**やってきて、二度と繰り返されない。その瞬間に重ければ、その半日は消えます
+
+> ランディングが遅い・落ちるのはUXの問題ではなく、**集客の問題**です。
 
 ## おわりに
 
-> ES: La lección transferible, que es la que justifica los dos artículos juntos:
->
-> **アプリとコンテンツは、求められる可用性が違う。** La app puede caerse un rato: los
-> usuarios reintentan. El contenido que sostiene el crecimiento por búsqueda, no —
-> ahí quien pasa mientras está caído es un rastreador que no reintenta igual, y lo que
-> se pierde no se recupera reiniciando.
->
-> Separarlos no es sobre-ingeniería si el motivo es ése. Lo sería si fuera por
-> rendimiento.
->
-> ES: Enlace al artículo 1 en una línea.
+**1.2秒かかっていたランディングページが、0.3秒で開くようになりました。** Lighthouseはデスクトップで100、ホスティングは月0円です。
+
+そして**全部CDNのキャッシュに乗るので、この速さは落ちません。** 告知の直後にアクセスが集中しても、混む相手のサーバーがそもそもいないからです。
+
+やったことは4つで、効いた順に並べるとこうなります。
+
+| やったこと | 効果 |
+|---|---|
+| **サーバーから出して静的に** | 42%の確率で起きていた**約1.9秒**のコールドスタートが消える |
+| **日本語フォントのサブセット化** | LCP **39.8 s → 9.6 s**（−3.7 MB） |
+| **JSを動的importへ** | JS **776 KB → 258 KB**、LCP **9.8 s → 8.6 s** |
+| **画像をビルド前に最適化** | ヒーローの画像 **1.7 MB → 104 KB** |
+
+LCPはLighthouseモバイルのシミュレート値です。実際のロードではありません（5章）。
+
+自分のサイトでやるなら、順番はこれです。
+
+**1. まず、静的にできないか考える。** ランディングやブログにサーバーが要ることは、ほとんどありません。APIは静的なページからも普通に呼べるので、失うものもほぼない。ここが決まると、**速さもホスティング代も混雑も、まとめて片付きます。**
+
+**2. Lighthouseで測って、その結果をAIに渡す。** 大事なのは「AIに聞く」ことではなく、**測った数字を渡す**ことです。レポートのJSONごと投げて、何が重いのか、Lighthouseの提案のうちどれが自分のサイトに効くのかを一緒に見る。勘でチューニングするより、はるかに速く当たります。
+
+**3. 犯人はだいたい3つ。** **フォント・画像・JavaScriptの重さ**です。この記事も、結局その3つで終わりました。特に日本語のサイトなら、まずフォントを疑ってください。**ページの9割**がフォントだったこともあります。
+
+241という数字も、930文字も、0.03%も、調べて出てきた値ではありません。自分のサイトを測って出た値です。
+
+**まずは、あなたのサイトのHTMLで `<link rel="preload" as="font">` を数えてみてください。30秒で終わります。**
+
+---
+
+記事は毎週金曜に書いています。
+
+アプリはこちらです。ライブやイベント——現場の予定を、推しごとにまとめて管理する推し活アプリです。
+
+https://oshisuki.com
+
+開発の様子は、数字も失敗もそのまま流しています。
+
+https://x.com/jordisantamar1a
