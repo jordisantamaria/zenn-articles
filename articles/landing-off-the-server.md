@@ -4,12 +4,12 @@ emoji: "⚡"
 type: "tech"
 topics: ["ai", "react", "nextjs", "個人開発", "フロントエンド"]
 published: true
-published_at: 2026-09-07 08:00
+published_at: 2026-09-04 21:00
 ---
 
 **1.2秒かかっていたランディングページが、0.3秒で開くようになりました。** ホスティングは月0円、Lighthouse 100。サーバーは1台も使っていません。
 
-先週、[個人開発のバックエンドをVercelからFly.ioへ移した話](https://zenn.dev/jordi/articles/indie-backend-stack)を書きました。APIは1.9秒から60〜85msになりました。**でも、そのAPIを叩くより前に、人はランディングページを開きます。** そこが遅ければ、バックエンドが何msだろうと、誰も知らないまま帰ります。
+先週、[個人開発のバックエンドをVercelからFly.ioへ移した話](https://zenn.dev/jordisantamaria/articles/indie-backend-stack)を書きました。APIは1.9秒から60〜85msになりました。**でも、そのAPIを叩くより前に、人はランディングページを開きます。** そこが遅ければ、バックエンドが何msだろうと、誰も知らないまま帰ります。
 
 ![Lighthouse（デスクトップ）の計測結果。Performance 100、Accessibility 95、Best Practices 100、SEO 100。First Contentful Paint 0.3秒、Largest Contentful Paint 0.7秒、Speed Index 0.4秒、Total Blocking Time 0ms、Cumulative Layout Shift 0](/images/landing-lighthouse-100.png)
 *本番の `oshisuki.com`、Lighthouse デスクトップ*
@@ -67,7 +67,7 @@ HTMLの作り方は、突き詰めると2つしかありません。**誰がい�
 
 秒数でいちばん効いたのは、この表のどれでもありませんでした。**コールドスタートです。**
 
-推しスキをリリースした当時、ランディングはVercelのサーバーレスで動いていました。しかも後述する `ƒ` のせいで**アクセスのたびに関数が起動する**状態です。[前回の記事](https://zenn.dev/jordi/articles/indie-backend-stack)で測ったコールドスタート率は **42.3%**。同じ時期、コールドで叩いたエンドポイントは**約1.9秒**かかっていました。
+推しスキをリリースした当時、ランディングはVercelのサーバーレスで動いていました。しかも後述する `ƒ` のせいで**アクセスのたびに関数が起動する**状態です。[前回の記事](https://zenn.dev/jordisantamaria/articles/indie-backend-stack)で測ったコールドスタート率は **42.3%**。同じ時期、コールドで叩いたエンドポイントは**約1.9秒**かかっていました。
 
 そしてトラフィックの形が最悪でした。**Xに投稿した直後の20分に集中して、あとは1日中まばら。** インスタンスが温まらないので、**キャンペーンで来てくれた人ほどコールドを引きます。**
 

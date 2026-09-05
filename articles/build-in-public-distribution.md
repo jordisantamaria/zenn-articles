@@ -8,7 +8,7 @@ published: false
 
 ## はじめに
 
-先月、推し活アプリ「推しスキ」をリリースしました。初日に55人が登録してくれて、その話は[前の記事](https://zenn.dev/jordi/articles/30days-to-app-store)に書きました。
+先月、推し活アプリ「推しスキ」をリリースしました。初日に55人が登録してくれて、その話は[前の記事](https://zenn.dev/jordisantamaria/articles/30days-to-app-store)に書きました。
 
 この記事はその続きです。「なぜ全部公開しながら作ったのか」と、そのおかげで何が起きたのか。
 

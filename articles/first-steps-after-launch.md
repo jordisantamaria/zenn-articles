@@ -11,7 +11,7 @@ published_at: 2026-08-21 21:50
 
 7月29日、推し活アプリ「推しスキ」をApp Storeに出しました。30日で作った話は前の記事に書きました。
 
-https://zenn.dev/jordi/articles/30days-to-app-store
+https://zenn.dev/jordisantamaria/articles/30days-to-app-store
 
 初日に55人が登録してくれて、そこで一区切りついたつもりでいました。まちがいでした。**いちばん忙しかったのは、そのあとです。**
 
