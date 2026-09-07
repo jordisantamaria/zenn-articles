@@ -2,7 +2,7 @@
 title: "Claude Codeの設定を、記憶352件・スキル71個まで育てました。何をどこに置くかを全部書きます"
 emoji: "🧠"
 type: "tech"
-topics: ["ai", "claudecode", "個人開発", "生産性", "githubcopilot"]
+topics: ["ai", "claudecode", "claude", "個人開発", "ai駆動開発"]
 published: false
 ---
 
