@@ -253,6 +253,11 @@ Se cayó por capas, y cada motivo es distinto:
    tarifa. Ver la memoria `no-income-talk-in-public-writing`.
 3. 日本料理 y 「この1年で」 → fuera también: la prueba social se queda solo en programación.
 
-**Lo que sostiene el argumento sigue en la intro**, en una línea:
-「3つ目を削れば、たぶん数字はもっと伸びます。でもそれをやったら本末転倒です。速くなりたいのは、
-そこに行くためだからです。」 Dice lo mismo que el párrafo largo sin exponer nada.
+4. **月15回以上ライブ** → fuera también, de la intro y del remate. Razón de Jordi: no es
+   prueba social de nada, porque **no es algo que haya logrado gracias al sistema** — iría
+   igual. Meterlo era pedirle a un dato que demostrara algo que no demuestra.
+
+**La prueba social queda solo en dos líneas de la intro**: 8 h/día de cliente con 625
+commits en 3 meses, y 推しスキ en solitario (desarrollo, diseño y marketing). El argumento
+de «para qué quieres ser rápido» ya lo lleva entero el capítulo 1, así que no se pierde
+nada al quitar el remate.
