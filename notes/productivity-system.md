@@ -57,17 +57,41 @@ para no procrastinar.**
   descanso** — no 5 minutos, hasta 30. Nadie se va a quejar de que te tomes recompensas
   de «procrastinación» si obtienes resultados.
 
-## 2. La herramienta de tareas + tiempo
+## 2. La herramienta: Super Productivity
 
-⚠️ **NOMBRE PENDIENTE — Jordi no lo recordaba y no lo encontré en su máquina ni en Notion.**
-Candidatos que encajan con la descripción: **Super Productivity** (open source, Linux,
-proyectos + estimación + pomodoro + tracking), **TickTick**, **Toggl Track**.
+**Super Productivity** (open source, Flatpak, v18.21.2). Confirmado por Jordi el 2026-09-08.
 
-Lo que hace con ella:
+- Tareas del día **por proyecto**.
+- **Estimación de tiempo** — lo que le hace ser más consciente del tiempo.
+- Pomodoro **trackeando el tiempo de una tarea concreta**.
 
-- Meter las tareas del día **por proyecto**.
-- **Estimar su tiempo** — es lo que le hace ser más consciente del tiempo.
-- Hacer pomodoro **trackeando el tiempo de una tarea concreta**.
+### Datos medidos de su instalación (backup del 2026-09-08)
+
+| | |
+|---|---|
+| Periodo | 2026-04-21 → 2026-08-18 |
+| Días con trabajo registrado | **48** |
+| Horas trackeadas | **144,8** |
+| Mediana por día activo | **2,4 h** |
+| Tareas | 125, en 2 proyectos (Inbox y el cliente) |
+
+**Lo que de verdad hace el mecanismo de «conciencia del tiempo»**, y es distinto de lo que
+parecía: en su config, `defaultEstimate` está en **25 minutos** y
+**`isNotifyWhenTimeEstimateExceeded: true`**. Es decir:
+
+- **No estima tarea por tarea.** 116 de 119 tareas conservan los 25 minutos por defecto.
+- Toda tarea nace valiendo **un pomodoro**, y la app **le avisa cuando lo pasa**.
+- Y lo pasa mucho: la tarea mediana consumió **2,3 pomodoros** (58 min), **el 62% necesitó
+  más de uno**, y la peor se comió **20** (25 min estimados → 8h17 en «Revisar excel»).
+
+Ese aviso ES la mecánica que describe («ya han pasado 30 minutos y ¿qué he hecho?»), y el
+62% es la prueba de que salta constantemente. **Ojo al redactar: NO decir que subestima
+2,3× — no hay estimación propia, hay un default. Decir que la unidad es el pomodoro y que
+el aviso salta en 6 de cada 10 tareas.**
+
+Y confirma lo que él ya dice: **48 días activos en 4 meses** = pomodoro **no estricto**,
+se enciende cuando hace falta. El tracking se detiene el 18/08 (hay que preguntarle si
+dejó de usarlo o solo dejó de trackear).
 
 ## 3. Atajos de teclado
 
@@ -82,11 +106,12 @@ Lo que hace con ella:
 Una vez por semana repasa **todo lo que ha capturado**: imágenes descargadas, vídeos,
 ficheros, favoritos, bookmarks, notas… y lo organiza.
 
-⚠️ **LIBRO PENDIENTE — no recordaba el nombre.** Por lo que describe son dos, y su
-sistema es la suma:
-- **«Getting Things Done» (David Allen)** — la revisión semanal, el inbox vacío, las
-  siguientes acciones y la regla de los 2 minutos (ver punto 7) son de ahí.
-- **«Building a Second Brain» (Tiago Forte)** — de ahí sale PARA (punto 6).
+El libro es **«Building a Second Brain» (Tiago Forte)**. Confirmado el 2026-09-08.
+
+⚠️ **NO citar «Getting Things Done»: Jordi no lo ha leído.** Aunque la revisión semanal,
+el inbox vacío y «resuélvelo ahora» se parezcan a GTD, aquí no son una referencia — son su
+propio sistema. Atribuirlo a un libro que no ha leído sería falso, y además le quita el
+mérito de haber llegado solo.
 
 ## 6. PARA, adaptado
 
@@ -172,7 +197,10 @@ Referencias del género que ya funcionaron, y por qué importan:
 
 ## Pendiente de Jordi
 
-1. **El nombre de la herramienta** de tareas/estimación/pomodoro.
-2. **El libro** (confirmar si es GTD, Building a Second Brain, o los dos).
-3. Qué evidencia medible puede poner. Sin números, este artículo es opinión; con ellos,
-   es el mismo tipo de pieza que los otros.
+1. ~~El nombre de la herramienta~~ → **Super Productivity** ✅
+2. ~~El libro~~ → **Building a Second Brain** ✅ (GTD no lo ha leído: no citarlo)
+3. ~~Evidencia medible~~ → **144,8 h en 48 días; el aviso de pomodoro excedido salta en el
+   62% de las tareas** ✅
+4. ¿Sigue usando Super Productivity? El tracking se corta el 2026-08-18.
+5. ¿Se pueden dar los nombres de proyecto? Ahora mismo son «Inbox» y el cliente — **el
+   nombre del cliente no puede salir en el artículo**.
