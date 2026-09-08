@@ -233,7 +233,11 @@ artículos lo devalúa.
 | — de ellas, privadas | 3.185 | `restrictedContributionsCount` |
 | Commits reales contados | **2.604** | `git log --all --no-merges --author` en los 23 repos locales |
 
-⚠️ **NO escribir «3.600 commits».** GitHub no desglosa las 3.185 privadas, y ahí dentro hay
-PRs y reviews del cliente. Las dos formas defendibles son **«3.566 contribuciones»** (lo que
-se ve en el gráfico) o **«unos 2.600 commits»** (lo que da contarlos). Mezclarlas no.
+**Cuenta todo: una PR o una review es trabajo igual que un commit.** Lo único que hay que
+cuidar es la palabra.
+
+- ✅ **「3,566 コントリビューション」** — entra todo, es lo que enseña el gráfico del perfil,
+  y es como los devs japoneses lo cuentan (草).
+- ❌ **「3,566 コミット」** — GitHub no desglosa las 3.185 privadas, así que le regala a
+  cualquiera un «esos no son todos commits». Cuesta credibilidad y no aporta nada.
 
