@@ -65,33 +65,24 @@ para no procrastinar.**
 - **Estimación de tiempo** — lo que le hace ser más consciente del tiempo.
 - Pomodoro **trackeando el tiempo de una tarea concreta**.
 
-### Datos medidos de su instalación (backup del 2026-09-08)
+### Cómo la usa de verdad (corregido por Jordi el 2026-09-08)
 
-| | |
-|---|---|
-| Periodo | 2026-04-21 → 2026-08-18 |
-| Días con trabajo registrado | **48** |
-| Horas trackeadas | **144,8** |
-| Mediana por día activo | **2,4 h** |
-| Tareas | 125, en 2 proyectos (Inbox y el cliente) |
+- **No la usa siempre. Solo cuando le cuesta coger el foco.**
+- **Las estimaciones no son estrictas**: son una referencia para darse cuenta de que el
+  tiempo pasa. No son un objetivo que cumplir.
+- **No hace falta ser extremadamente disciplinado para obtener resultados** — y eso es
+  parte del mensaje del artículo, no una excusa.
 
-**Lo que de verdad hace el mecanismo de «conciencia del tiempo»**, y es distinto de lo que
-parecía: en su config, `defaultEstimate` está en **25 minutos** y
-**`isNotifyWhenTimeEstimateExceeded: true`**. Es decir:
+⚠️ **NO usar los datos de Super Productivity como evidencia del artículo.** Los backups dan
+144,8 h en 48 días entre abril y agosto, pero eso **no mide su productividad**: mide los
+días que necesitó ayuda para concentrarse. Publicarlo sugeriría que trabaja 2,4 h al día,
+que es falso. Lo mismo vale para el «el aviso salta en el 62% de las tareas»: sale de la
+misma muestra sesgada.
 
-- **No estima tarea por tarea.** 116 de 119 tareas conservan los 25 minutos por defecto.
-- Toda tarea nace valiendo **un pomodoro**, y la app **le avisa cuando lo pasa**.
-- Y lo pasa mucho: la tarea mediana consumió **2,3 pomodoros** (58 min), **el 62% necesitó
-  más de uno**, y la peor se comió **20** (25 min estimados → 8h17 en «Revisar excel»).
-
-Ese aviso ES la mecánica que describe («ya han pasado 30 minutos y ¿qué he hecho?»), y el
-62% es la prueba de que salta constantemente. **Ojo al redactar: NO decir que subestima
-2,3× — no hay estimación propia, hay un default. Decir que la unidad es el pomodoro y que
-el aviso salta en 6 de cada 10 tareas.**
-
-Y confirma lo que él ya dice: **48 días activos en 4 meses** = pomodoro **no estricto**,
-se enciende cuando hace falta. El tracking se detiene el 18/08 (hay que preguntarle si
-dejó de usarlo o solo dejó de trackear).
+Detalle de configuración que sí se puede contar, porque es el mecanismo y no una métrica:
+toda tarea nace valiendo **un pomodoro** (`defaultEstimate` = 25 min) y la app **avisa
+cuando lo pasa** (`isNotifyWhenTimeEstimateExceeded`). Ese aviso es el «ya han pasado 30
+minutos, ¿y qué he hecho?».
 
 ## 3. Atajos de teclado
 
@@ -218,12 +209,18 @@ atento detecta — y en はてな alguien lo dice en los comentarios.
 | artículo | su evidencia |
 |---|---|
 | Claude Code (setting) | commits/mes: 100 → 270 |
-| Productividad general | 144,8 h en 48 días · el aviso salta en el 62% de las tareas |
+| Productividad general | **ninguna métrica de tracking** — ver abajo |
 | Flujo diario con IA | (pendiente: ramas de tarea, tamaño de PR) |
 
 Los commits pueden aparecer **una línea, como contexto de quién escribe** — nunca como la
 prueba del artículo. Y son el activo más fuerte que tiene: gastarlo de adorno en cuatro
 artículos lo devalúa.
+
+**Excepción, y es este artículo: aquí no va ninguna métrica.** Exigirle un número medido
+contradice su propia tesis — un artículo que empieza enseñando horas trackeadas dice «mira
+qué disciplinado soy», y lo que dice el artículo es que no hace falta serlo. Lo que
+sostiene esta pieza es **lo concreto que sea el sistema** y, como contexto, el resultado
+(las 3.566 contribuciones). Nada más.
 
 ### Cifras verificadas (2026-09-08, ventana 2025-09-08 → 2026-09-08)
 
