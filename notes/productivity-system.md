@@ -256,8 +256,10 @@ El bloque es 「目標は、仕事の目標だけではありません」 con: �
 - **Si se quita:** se pierde menos de lo que parece. La intro ya lleva 月15回以上ライブ, que
   sostiene el mismo argumento sin exponer nada.
 
-**RESUELTO el 2026-09-08:** fuera la línea de la novia. Se queda 日本料理 / 収入 / アプリ /
-月15回ライブ.
+**RESUELTO el 2026-09-08:** fuera la novia (privacidad) y fuera el salario (el artículo se
+comparte con el cliente freelance, y publicar que sus ingresos subieron mucho le debilita
+la próxima negociación de tarifa). Queda 日本料理 / アプリ / 月15回ライブ — dos de los tres
+no tienen nada que ver con programar, así que el argumento del párrafo sigue en pie.
 
 ⚠️ **Descartada la variante «solo salario y la app»**: las dos son logros de trabajo y
 dinero, así que el párrafo pasaría a demostrar lo contrario de lo que afirma. Lo que hace
