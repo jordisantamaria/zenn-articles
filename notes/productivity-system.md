@@ -204,3 +204,36 @@ Referencias del género que ya funcionaron, y por qué importan:
 4. ¿Sigue usando Super Productivity? El tracking se corta el 2026-08-18.
 5. ¿Se pueden dar los nombres de proyecto? Ahora mismo son «Inbox» y el cliente — **el
    nombre del cliente no puede salir en el artículo**.
+
+---
+
+## Regla sobre las cifras (fijada el 2026-09-08)
+
+**Cada artículo se prueba con la evidencia de SU mecanismo, no con la cifra de commits.**
+
+Los commits demuestran «entrego mucho código». **No demuestran** que PARA funcione, ni el
+inbox vacío, ni el journaling. Usarlos como prueba de todo es el atajo que un lector
+atento detecta — y en はてな alguien lo dice en los comentarios.
+
+| artículo | su evidencia |
+|---|---|
+| Claude Code (setting) | commits/mes: 100 → 270 |
+| Productividad general | 144,8 h en 48 días · el aviso salta en el 62% de las tareas |
+| Flujo diario con IA | (pendiente: ramas de tarea, tamaño de PR) |
+
+Los commits pueden aparecer **una línea, como contexto de quién escribe** — nunca como la
+prueba del artículo. Y son el activo más fuerte que tiene: gastarlo de adorno en cuatro
+artículos lo devalúa.
+
+### Cifras verificadas (2026-09-08, ventana 2025-09-08 → 2026-09-08)
+
+| dato | valor | cómo se comprueba |
+|---|---|---|
+| Contribuciones en GitHub | **3.566** | GraphQL `contributionCalendar.totalContributions`; es lo que enseña el gráfico del perfil |
+| — de ellas, privadas | 3.185 | `restrictedContributionsCount` |
+| Commits reales contados | **2.604** | `git log --all --no-merges --author` en los 23 repos locales |
+
+⚠️ **NO escribir «3.600 commits».** GitHub no desglosa las 3.185 privadas, y ahí dentro hay
+PRs y reviews del cliente. Las dos formas defendibles son **«3.566 contribuciones»** (lo que
+se ve en el gráfico) o **«unos 2.600 commits»** (lo que da contarlos). Mezclarlas no.
+
