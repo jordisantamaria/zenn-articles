@@ -238,3 +238,24 @@ cuidar es la palabra.
 - ❌ **「3,566 コミット」** — GitHub no desglosa las 3.185 privadas, así que le regala a
   cualquiera un «esos no son todos commits». Cuesta credibilidad y no aporta nada.
 
+---
+
+## Decisión abierta: el bloque de metas personales (cap. 1)
+
+Está **escrito y dentro** del artículo, pero Jordi no lo tiene claro (2026-09-08).
+
+El bloque es 「目標は、仕事の目標だけではありません」 con: 日本料理を作れるようになった /
+初めて恋人ができた / 収入も大きく増えた / アプリをゼロから / 月15回以上ライブ.
+
+- **A favor:** es el diferenciador del artículo. Todo el género mide producción de trabajo;
+  este dice que si devuelves el tiempo ganado al trabajo no has ganado nada. Y el remate
+  (「どれも、目標として書いてあったものです」) convierte la lista en prueba del capítulo 1.
+- **En contra:** es lo único del artículo que **no se puede despublicar** de la cabeza de
+  quien lo lea, va bajo su nombre real, y desplaza el registro hacia blog personal en una
+  pieza que usa como portafolio.
+- **Si se quita:** se pierde menos de lo que parece. La intro ya lleva 月15回以上ライブ, que
+  sostiene el mismo argumento sin exponer nada.
+
+**Se decide antes de publicar, no ahora.** El artículo está en `published: false`; el bloque
+es un solo párrafo y sale de una pasada.
+
