@@ -240,29 +240,19 @@ cuidar es la palabra.
 
 ---
 
-## Decisión abierta: el bloque de metas personales (cap. 1)
+## RESUELTO: fuera el bloque de metas personales (2026-09-08)
 
-Está **escrito y dentro** del artículo, pero Jordi no lo tiene claro (2026-09-08).
+El párrafo 「目標は、仕事の目標だけではありません」 se **retiró entero**. Decisión de Jordi:
+**la prueba social del artículo es solo su productividad programando** — el trabajo de
+cliente y 推しスキ.
 
-El bloque es 「目標は、仕事の目標だけではありません」 con: 日本料理を作れるようになった /
-初めて恋人ができた / 収入も大きく増えた / アプリをゼロから / 月15回以上ライブ.
+Se cayó por capas, y cada motivo es distinto:
 
-- **A favor:** es el diferenciador del artículo. Todo el género mide producción de trabajo;
-  este dice que si devuelves el tiempo ganado al trabajo no has ganado nada. Y el remate
-  (「どれも、目標として書いてあったものです」) convierte la lista en prueba del capítulo 1.
-- **En contra:** es lo único del artículo que **no se puede despublicar** de la cabeza de
-  quien lo lea, va bajo su nombre real, y desplaza el registro hacia blog personal en una
-  pieza que usa como portafolio.
-- **Si se quita:** se pierde menos de lo que parece. La intro ya lleva 月15回以上ライブ, que
-  sostiene el mismo argumento sin exponer nada.
+1. 初めて恋人ができた → privacidad; va con su nombre real en una pieza de portafolio.
+2. 収入も大きく増えた → el artículo lo comparte con el cliente freelance y le debilita la
+   tarifa. Ver la memoria `no-income-talk-in-public-writing`.
+3. 日本料理 y 「この1年で」 → fuera también: la prueba social se queda solo en programación.
 
-**RESUELTO el 2026-09-08:** fuera la novia (privacidad) y fuera el salario (el artículo se
-comparte con el cliente freelance, y publicar que sus ingresos subieron mucho le debilita
-la próxima negociación de tarifa). Queda 日本料理 / アプリ / 月15回ライブ — dos de los tres
-no tienen nada que ver con programar, así que el argumento del párrafo sigue en pie.
-
-⚠️ **Descartada la variante «solo salario y la app»**: las dos son logros de trabajo y
-dinero, así que el párrafo pasaría a demostrar lo contrario de lo que afirma. Lo que hace
-funcionar el bloque es justamente 日本料理 y las ライブ — lo que no tiene nada que ver con
-programar.
-
+**Lo que sostiene el argumento sigue en la intro**, en una línea:
+「3つ目を削れば、たぶん数字はもっと伸びます。でもそれをやったら本末転倒です。速くなりたいのは、
+そこに行くためだからです。」 Dice lo mismo que el párrafo largo sin exponer nada.
