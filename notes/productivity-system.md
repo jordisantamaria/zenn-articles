@@ -253,11 +253,14 @@ Se cayó por capas, y cada motivo es distinto:
    tarifa. Ver la memoria `no-income-talk-in-public-writing`.
 3. 日本料理 y 「この1年で」 → fuera también: la prueba social se queda solo en programación.
 
-4. **月15回以上ライブ** → fuera también, de la intro y del remate. Razón de Jordi: no es
-   prueba social de nada, porque **no es algo que haya logrado gracias al sistema** — iría
-   igual. Meterlo era pedirle a un dato que demostrara algo que no demuestra.
+4. **月15回以上ライブ** → se quitó y **volvió con otro encuadre**. No es un logro del
+   sistema (iría igual), así que como «meta conseguida» no probaba nada. Pero sí prueba
+   otra cosa, que es la que Jordi quería decir: **aun con esa carga de trabajo, el 推し活
+   no se resiente.** Redactado como 「これだけ時間を使っていても、推し活の時間は削っていません」.
 
-**La prueba social queda solo en dos líneas de la intro**: 8 h/día de cliente con 625
-commits en 3 meses, y 推しスキ en solitario (desarrollo, diseño y marketing). El argumento
-de «para qué quieres ser rápido» ya lo lleva entero el capítulo 1, así que no se pierde
-nada al quitar el remate.
+**Regla que sale de aquí:** un dato solo es prueba social si demuestra la afirmación que
+tiene al lado. El mismo número era inútil como logro y bueno como contrapeso.
+
+**La prueba social del artículo queda así**: 8 h/día de cliente con 625 commits en 3 meses,
+推しスキ en solitario (desarrollo, diseño y marketing), 3.566 contribuciones en el año, y el
+hobby intacto.
