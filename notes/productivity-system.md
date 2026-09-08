@@ -256,6 +256,11 @@ El bloque es 「目標は、仕事の目標だけではありません」 con: �
 - **Si se quita:** se pierde menos de lo que parece. La intro ya lleva 月15回以上ライブ, que
   sostiene el mismo argumento sin exponer nada.
 
-**Se decide antes de publicar, no ahora.** El artículo está en `published: false`; el bloque
-es un solo párrafo y sale de una pasada.
+**RESUELTO el 2026-09-08:** fuera la línea de la novia. Se queda 日本料理 / 収入 / アプリ /
+月15回ライブ.
+
+⚠️ **Descartada la variante «solo salario y la app»**: las dos son logros de trabajo y
+dinero, así que el párrafo pasaría a demostrar lo contrario de lo que afirma. Lo que hace
+funcionar el bloque es justamente 日本料理 y las ライブ — lo que no tiene nada que ver con
+programar.
 
